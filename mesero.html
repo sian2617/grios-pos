@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Donde los Grios — Mesero</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#111318;--surface:#1c1f27;--surface2:#252933;--border:#2e3240;--accent:#f5a623;--accent2:#e8670a;--cocina:#22c55e;--billar:#a855f7;--danger:#ef4444;--text:#eef0f5;--muted:#6b7280;--r:16px;--rs:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;display:flex;flex-direction:column}
+#gLoader{position:fixed;inset:0;background:#0009;z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#gLoader.on{display:flex}
+.spin{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:10px 20px;border-radius:999px;font-size:.85rem;opacity:0;transition:all .3s;z-index:8000;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.screen{display:none;flex:1;overflow-y:auto;overflow-x:hidden}
+.screen.on{display:flex;flex-direction:column}
+#hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 18px;display:none;align-items:center;justify-content:space-between;flex-shrink:0}
+#hdr.on{display:flex}
+.hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--accent);letter-spacing:1px}
+.hdr-sub{font-size:.7rem;color:var(--muted);margin-top:-2px}
+.hdr-mesero{font-size:.78rem;color:var(--muted);font-weight:600}
+.mesa-badge{background:var(--accent);color:#000;font-weight:800;font-size:.8rem;padding:4px 14px;border-radius:999px;display:none}
+.mesa-badge.on{display:block}
+.hdr-btns{display:flex;gap:8px;align-items:center}
+.hdr-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:7px 14px;font-size:.8rem;font-weight:700;color:var(--muted);cursor:pointer}
+/* PIN */
+#s-pin{align-items:center;justify-content:center;padding:32px 24px;background:radial-gradient(ellipse at top,#1e2235,var(--bg) 70%)}
+.pin-logo{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--accent);text-align:center;letter-spacing:2px}
+.pin-nombre{font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:32px;letter-spacing:.5px}
+.pin-display{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:16px 28px;width:100%;max-width:320px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:12px;color:var(--text);margin-bottom:8px;min-height:68px;transition:border-color .2s}
+.pin-display.err{border-color:var(--danger);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pin-hint{color:var(--muted);font-size:.78rem;margin-bottom:24px;text-align:center;min-height:20px}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:320px}
+.pk{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;font-size:1.5rem;font-weight:700;cursor:pointer;color:var(--text);text-align:center;transition:all .15s;user-select:none}
+.pk:active{background:var(--accent);color:#000;transform:scale(.93)}
+.pk.del{background:transparent;color:var(--danger)}
+.pk.ok{background:var(--accent);color:#000;font-weight:800}
+/* MESAS */
+#s-mesa{padding:20px 16px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;margin-bottom:4px}
+.sec-sub{color:var(--muted);font-size:.82rem;margin-bottom:18px}
+.sec-label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:8px}
+.mesa-sec{margin-bottom:18px}
+.mesa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mesa-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:16px 10px;cursor:pointer;text-align:center;transition:all .18s;position:relative;overflow:hidden}
+.mesa-card:active{transform:scale(.94)}
+.mesa-card.occ{border-color:var(--accent2)}
+.mesa-card.occ::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#e8670a18,transparent)}
+.mesa-card .mn{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;line-height:1;display:block}
+.mesa-card .ml{font-size:.62rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-top:2px}
+.mesa-card .mt{font-size:.78rem;font-weight:700;color:var(--accent);margin-top:3px}
+.mesa-card.bil{background:linear-gradient(135deg,#1e1530,var(--surface))}
+.mesa-card.bil .mn{color:var(--billar);font-size:1.2rem}
+.occ-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--accent2);border-radius:50%}
+/* PRODUCTOS */
+#s-prod{padding:0}
+.prod-hdr{padding:12px 16px 0;flex-shrink:0}
+.search-wrap{position:relative;margin-bottom:10px}
+.search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:.9rem}
+.search-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 13px 10px 38px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.9rem;outline:none}
+.search-inp:focus{border-color:var(--accent)}
+.search-inp::placeholder{color:var(--muted)}
+.cats{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:.78rem;font-weight:700;white-space:nowrap;cursor:pointer;color:var(--muted);flex-shrink:0}
+.cat.on{background:var(--accent);border-color:var(--accent);color:#000}
+.acum-bar{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer}
+.acum-lbl{font-size:.72rem;color:var(--muted);font-weight:600}
+.acum-val{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--accent)}
+.prod-list{flex:1;overflow-y:auto;padding:10px 16px 130px;display:flex;flex-direction:column;gap:8px}
+.pcard{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:12px 14px;position:relative;transition:border-color .15s}
+.pcard.inc{border-color:var(--accent)}
+.pcard.inc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:var(--r) 0 0 var(--r)}
+.pcard-row{display:flex;align-items:center;gap:12px}
+.pinfo{flex:1;min-width:0}
+.pname{font-weight:700;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pprice{font-weight:800;font-size:.82rem;color:var(--accent);margin-top:1px}
+.pdest{font-size:.68rem;color:var(--muted);margin-top:1px}
+.qty-ctrl{display:flex;align-items:center;background:var(--surface2);border-radius:var(--rs);overflow:hidden;flex-shrink:0}
+.qbtn{background:none;border:none;color:var(--text);width:34px;height:34px;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qbtn:active{background:var(--border)}
+.qval{width:36px;background:none;border:none;color:var(--text);text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;outline:none;-moz-appearance:textfield}
+.qval::-webkit-outer-spin-button,.qval::-webkit-inner-spin-button{-webkit-appearance:none}
+.note-btn{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;padding:4px 0;margin-top:5px;text-align:left;width:100%}
+.note-btn.on{color:var(--accent)}
+.note-ta{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:7px 10px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.78rem;outline:none;resize:none;margin-top:5px;display:none}
+.note-ta.on{display:block}
+.note-ta:focus{border-color:var(--accent)}
+.bil-card{background:linear-gradient(135deg,#1e1530,var(--surface));border-color:var(--billar) !important}
+.bil-timer{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--billar);min-width:70px;text-align:center}
+.bil-btn{border:none;border-radius:var(--rs);padding:8px 14px;font-weight:800;font-size:.8rem;cursor:pointer}
+.bil-start{background:var(--billar);color:#fff}
+.bil-stop{background:var(--danger);color:#fff}
+.cart-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);z-index:200}
+.cart-bar.on{transform:translateY(0)}
+.cart-info{flex:1}
+.cart-cnt{font-size:.72rem;color:var(--muted);font-weight:600}
+.cart-tot{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent)}
+.btn-send{background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:13px 22px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;white-space:nowrap}
+.btn-send:disabled{opacity:.4}
+#s-acum{padding:16px}
+.acum-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.acum-item{background:var(--surface);border-radius:var(--r);padding:13px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.acum-prod{font-weight:700;font-size:.9rem}
+.acum-meta{font-size:.75rem;color:var(--muted);margin-top:2px}
+.acum-note{font-size:.72rem;color:var(--accent);margin-top:2px}
+.acum-sub{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--accent);flex-shrink:0}
+.tot-row{background:var(--surface2);border-radius:var(--r);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.tot-lbl{font-weight:700;color:var(--muted);font-size:.85rem}
+.tot-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--accent)}
+.btn-back{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);cursor:pointer;width:100%;margin-top:16px}
+#s-ok{align-items:center;justify-content:center;padding:32px 20px;text-align:center}
+.ok-circle{width:80px;height:80px;background:var(--cocina);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.ok-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;margin-bottom:8px}
+.ok-sub{color:var(--muted);font-size:.88rem;margin-bottom:28px}
+.ok-detail{background:var(--surface);border-radius:var(--r);padding:16px;text-align:left;width:100%;margin-bottom:24px}
+.ok-item{display:flex;flex-direction:column;padding:6px 0;border-bottom:1px solid var(--border);font-size:.88rem}
+.ok-item:last-child{border-bottom:none}
+.ok-row{display:flex;justify-content:space-between}
+.ok-note{font-size:.75rem;color:var(--accent);margin-top:2px}
+.btn-nueva{background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:15px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;width:100%;margin-bottom:10px}
+.btn-mas{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;width:100%}
+.modal-ov{position:fixed;inset:0;background:#000b;z-index:500;display:none;align-items:flex-end;justify-content:center}
+.modal-ov.on{display:flex}
+.modal{background:var(--surface);border-radius:var(--r) var(--r) 0 0;padding:24px 20px;width:100%;max-width:480px;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;margin-bottom:6px}
+.modal p{color:var(--muted);font-size:.82rem;margin-bottom:18px}
+.modal-note{text-align:center;font-size:.85rem;color:var(--muted);margin-bottom:18px}
+.modal-row{display:flex;gap:10px}
+.btn-cancel{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);cursor:pointer}
+.btn-ok{flex:2;border:none;border-radius:var(--rs);padding:13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="gLoader"><div class="spin"></div></div>
+<div id="toast"></div>
+
+<div id="hdr">
+  <div>
+    <div class="hdr-logo">🍺 Donde los Grios</div>
+    <div class="hdr-sub">Sistema de Comandas</div>
+  </div>
+  <div class="hdr-btns">
+    <div class="mesa-badge" id="hdrMesa"></div>
+    <button class="hdr-btn" onclick="goMesa()">Mesas</button>
+    <button class="hdr-btn" onclick="showLogout()">☰</button>
+  </div>
+</div>
+
+<div class="screen on" id="s-pin">
+  <div class="pin-logo">Donde los Grios</div>
+  <div class="pin-nombre">Sistema POS — Meseros</div>
+  <div class="pin-display" id="pinDisp">_</div>
+  <div class="pin-hint" id="pinHint">Ingresa tu PIN</div>
+  <div class="pin-grid">
+    <div class="pk" onclick="pk('1')">1</div><div class="pk" onclick="pk('2')">2</div><div class="pk" onclick="pk('3')">3</div>
+    <div class="pk" onclick="pk('4')">4</div><div class="pk" onclick="pk('5')">5</div><div class="pk" onclick="pk('6')">6</div>
+    <div class="pk" onclick="pk('7')">7</div><div class="pk" onclick="pk('8')">8</div><div class="pk" onclick="pk('9')">9</div>
+    <div class="pk del" onclick="pkDel()">⌫</div><div class="pk" onclick="pk('0')">0</div><div class="pk ok" onclick="pkEnter()">✓</div>
+  </div>
+</div>
+
+<div class="screen" id="s-mesa">
+  <div style="padding:20px 16px">
+    <div class="sec-title">¿Qué mesa?</div>
+    <div class="sec-sub">Selecciona la mesa para la comanda</div>
+    <div class="mesa-sec"><div class="sec-label">Mesas</div><div class="mesa-grid" id="mesaGrid"></div></div>
+    <div class="mesa-sec"><div class="sec-label">🎱 Billar</div><div class="mesa-grid" id="billarGrid"></div></div>
+  </div>
+</div>
+
+<div class="screen" id="s-prod">
+  <div class="prod-hdr">
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-inp" id="searchInp" type="text" placeholder="Buscar producto..." oninput="renderProds()">
+    </div>
+    <div class="cats" id="cats"></div>
+  </div>
+  <div class="acum-bar" onclick="go('s-acum')">
+    <div><div class="acum-lbl">Acumulado — toca para ver detalle</div><div class="acum-val" id="acumVal">Q0.00</div></div>
+    <div style="color:var(--muted);font-size:.8rem">→</div>
+  </div>
+  <div class="prod-list" id="prodList"></div>
+  <div class="cart-bar" id="cartBar">
+    <div class="cart-info">
+      <div class="cart-cnt" id="cartCnt"></div>
+      <div class="cart-tot" id="cartTot">Q0.00</div>
+    </div>
+    <button class="btn-send" id="btnSend" onclick="enviar()">Enviar →</button>
+  </div>
+</div>
+
+<div class="screen" id="s-acum">
+  <div style="padding:16px">
+    <div class="sec-title">Acumulado</div>
+    <div class="sec-sub" id="acumSub"></div>
+    <div class="acum-list" id="acumList"></div>
+    <button class="btn-back" onclick="go('s-prod')">← Volver a productos</button>
+  </div>
+</div>
+
+<div class="screen" id="s-ok">
+  <div class="ok-circle">✓</div>
+  <div class="ok-title">¡Comanda enviada!</div>
+  <div class="ok-sub" id="okSub"></div>
+  <div class="ok-detail" id="okDetail"></div>
+  <button class="btn-nueva" onclick="goMesa()">Nueva mesa</button>
+  <button class="btn-mas" onclick="go('s-prod')">+ Agregar más a esta mesa</button>
+</div>
+
+<div class="modal-ov" id="mLogout">
+  <div class="modal">
+    <h3>Cerrar sesión</h3>
+    <p>¿Seguro que deseas cerrar tu sesión?</p>
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeModal('mLogout')">Cancelar</button>
+      <button class="btn-ok" style="background:var(--danger);color:#fff" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-ov" id="mBillar">
+  <div class="modal">
+    <h3 id="billarTit">🎱 Billar</h3>
+    <p id="billarTxt">Inicia el temporizador automático.</p>
+    <div class="modal-note">Q35.00 / hora · redondeo cada 30 min</div>
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeModal('mBillar')">Cancelar</button>
+      <button class="btn-ok" id="billarOkBtn" style="background:var(--billar);color:#fff" onclick="accionBillar()">Iniciar timer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+// ── FIREBASE INIT ──────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDPjFVieeQHxrz97udHcCx1QR8w_vMPYS0",
+  authDomain: "pos-restaurante-383b0.firebaseapp.com",
+  databaseURL: "https://pos-restaurante-383b0-default-rtdb.firebaseio.com",
+  projectId: "pos-restaurante-383b0",
+  storageBucket: "pos-restaurante-383b0.firebasestorage.app",
+  messagingSenderId: "790577466312",
+  appId: "1:790577466312:web:ab6e8e22b9fe1e73da4efd"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ── MESEROS ────────────────────────────────────────────────
+const MESEROS = [
+  {pin:'1001',nombre:'Mesero 1'},{pin:'1002',nombre:'Mesero 2'},
+  {pin:'1003',nombre:'Mesero 3'},{pin:'1004',nombre:'Mesero 4'},
+  {pin:'1005',nombre:'Mesero 5'},{pin:'1006',nombre:'Mesero 6'},
+  {pin:'1007',nombre:'Mesero 7'}
+];
+const BILLAR_MESAS = ['Billar A','Billar B'];
+const BILLAR_PRECIO = 35;
+
+// ── PRECIOS ────────────────────────────────────────────────
+const PRODUCTOS = [
+  {nombre:'Gallo 12 Onzas',precio:12,destino:'Barra'},
+  {nombre:'Gallo LATA',precio:12,destino:'Barra'},
+  {nombre:'Heineken',precio:20,destino:'Barra'},
+  {nombre:'Americano',precio:10,destino:'Barra'},
+  {nombre:'Capuccino',precio:12,destino:'Barra'},
+  {nombre:'Moka',precio:12,destino:'Barra'},
+  {nombre:'Caramel Machiato',precio:12,destino:'Barra'},
+  {nombre:'Cafe con leche',precio:12,destino:'Barra'},
+  {nombre:'Cabro 12 Onz',precio:12,destino:'Barra'},
+  {nombre:'Montecarlo',precio:18,destino:'Barra'},
+  {nombre:'Dorada Draft',precio:18,destino:'Barra'},
+  {nombre:'Agua Pura',precio:8,destino:'Barra'},
+  {nombre:'Naranjada con soda',precio:10,destino:'Barra'},
+  {nombre:'Limonada con soda',precio:10,destino:'Barra'},
+  {nombre:'Bacardi Frambuesa',precio:18,destino:'Barra'},
+  {nombre:'Orange',precio:10,destino:'Barra'},
+  {nombre:'Tikis',precio:10,destino:'Barra'},
+  {nombre:'Mineral Lata',precio:10,destino:'Barra'},
+  {nombre:'Jarritos',precio:16,destino:'Barra'},
+  {nombre:'Te frio',precio:12,destino:'Barra'},
+  {nombre:'Bebida de Mango',precio:18,destino:'Barra'},
+  {nombre:'Octavo Quetzalteca',precio:15,destino:'Barra'},
+  {nombre:'Blue Lagoon',precio:18,destino:'Barra'},
+  {nombre:'Red Orange',precio:18,destino:'Barra'},
+  {nombre:'Iced Coffee',precio:16,destino:'Barra'},
+  {nombre:'Iced Caramell',precio:16,destino:'Barra'},
+  {nombre:'Iced Chocolate',precio:16,destino:'Barra'},
+  {nombre:'Expreso',precio:10,destino:'Barra'},
+  {nombre:'Carne Asada',precio:40,destino:'Cocina'},
+  {nombre:'Quesadilla Jamón',precio:30,destino:'Cocina'},
+  {nombre:'Quesadilla Carne Asada',precio:35,destino:'Cocina'},
+  {nombre:'Quesadilla Adobado',precio:35,destino:'Cocina'},
+  {nombre:'Quesoburguesa',precio:35,destino:'Cocina'},
+  {nombre:'Hamburguesa',precio:30,destino:'Cocina'},
+  {nombre:'Chili Dog',precio:35,destino:'Cocina'},
+  {nombre:'Hot Dog',precio:30,destino:'Cocina'},
+  {nombre:'Taco Pastor',precio:35,destino:'Cocina'},
+  {nombre:'Taco Longaniza',precio:35,destino:'Cocina'},
+  {nombre:'Taco Adobado',precio:35,destino:'Cocina'},
+  {nombre:'Papa Supreme',precio:20,destino:'Cocina'},
+  {nombre:'Papa Chili Beans',precio:25,destino:'Cocina'},
+  {nombre:'Nachos Supreme',precio:20,destino:'Cocina'},
+  {nombre:'Nachos Chili Beans',precio:25,destino:'Cocina'},
+  {nombre:'Hora de Billar',precio:35,destino:'Ninguno'}
+];
+
+// ── STATE ──────────────────────────────────────────────────
+var S = {
+  mesero:null, mesa:null, cart:{}, notes:{}, cat:'Todo',
+  billarOn:false, billarStart:null, billarTick:null,
+  acumListener:null
+};
+
+// ── INIT ───────────────────────────────────────────────────
+window.addEventListener('load', function(){ buildMesaGrid(); escucharMesas(); });
+
+// ── PIN ────────────────────────────────────────────────────
+var buf='';
+function pk(d){ if(buf.length>=4)return; buf+=d; showPin(); }
+function pkDel(){ buf=buf.slice(0,-1); showPin(); setHint('Ingresa tu PIN'); document.getElementById('pinDisp').classList.remove('err'); }
+function showPin(){ document.getElementById('pinDisp').textContent=buf?buf.replace(/./g,'●'):'_'; }
+function setHint(t){ document.getElementById('pinHint').textContent=t; }
+
+function pkEnter(){
+  if(!buf)return;
+  var m=MESEROS.find(function(x){return x.pin===buf;});
+  if(m){
+    S.mesero=m.nombre;
+    document.getElementById('hdr').classList.add('on');
+    document.getElementById('hdrMesero') && (document.getElementById('hdrMesero').textContent=m.nombre);
+    buf=''; showPin();
+    go('s-mesa');
+  } else {
+    document.getElementById('pinDisp').classList.add('err');
+    setHint('PIN incorrecto');
+    buf='';
+    setTimeout(function(){ showPin(); document.getElementById('pinDisp').classList.remove('err'); setHint('Ingresa tu PIN'); },1000);
+  }
+}
+
+function showLogout(){ document.getElementById('mLogout').classList.add('on'); }
+function logout(){
+  closeModal('mLogout');
+  if(S.acumListener){ S.acumListener(); S.acumListener=null; }
+  S.mesero=null; S.mesa=null; S.cart={}; S.notes={};
+  document.getElementById('hdr').classList.remove('on');
+  document.getElementById('hdrMesa').classList.remove('on');
+  stopBillar(); buf=''; showPin(); go('s-pin');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('on'); }
+
+// ── MESAS ──────────────────────────────────────────────────
+function buildMesaGrid(){
+  var g=document.getElementById('mesaGrid');
+  for(var i=1;i<=13;i++) g.appendChild(mkCard('Mesa '+i,i,false));
+  var bg=document.getElementById('billarGrid');
+  BILLAR_MESAS.forEach(function(m){ bg.appendChild(mkCard(m,m,true)); });
+}
+
+function mkCard(id,lbl,isBil){
+  var d=document.createElement('div');
+  d.className='mesa-card'+(isBil?' bil':'');
+  d.id='mc-'+id;
+  d.innerHTML='<span class="mn">'+lbl+'</span><span class="ml">'+(isBil?'Billar':'Mesa')+'</span><div class="mt" id="mt-'+id+'"></div>';
+  d.onclick=function(){ selMesa(id); };
+  return d;
+}
+
+function escucharMesas(){
+  db.ref('mesas').on('value', function(snap){
+    var data = snap.val() || {};
+    // Reset all
+    document.querySelectorAll('.mesa-card').forEach(function(c){
+      c.classList.remove('occ');
+      var b=c.querySelector('.occ-dot'); if(b)b.remove();
+    });
+    Object.keys(data).forEach(function(mesa){
+      var info=data[mesa];
+      var card=document.getElementById('mc-'+mesa); if(!card)return;
+      var mt=document.getElementById('mt-'+mesa);
+      if(info.total>0){
+        card.classList.add('occ');
+        if(mt) mt.textContent='Q'+Number(info.total).toFixed(2);
+        if(!card.querySelector('.occ-dot')){ var b=document.createElement('div'); b.className='occ-dot'; card.appendChild(b); }
+      } else {
+        if(mt) mt.textContent='';
+      }
+    });
+  });
+}
+
+function selMesa(mesa){
+  S.mesa=mesa; S.cart={}; S.notes={}; S.cat='Todo';
+  S.billarOn=false; S.billarStart=null;
+  document.getElementById('searchInp').value='';
+  document.getElementById('hdrMesa').textContent=mesa;
+  document.getElementById('hdrMesa').classList.add('on');
+  // Verificar timer billar activo
+  db.ref('billar/'+mesa.replace(/\s/g,'_')).once('value', function(snap){
+    var d=snap.val();
+    if(d && d.activo){ S.billarOn=true; S.billarStart=d.inicio; }
+    buildCats(); renderProds();
+  });
+  escucharAcum(mesa);
+  go('s-prod');
+}
+
+function goMesa(){
+  S.mesa=null; S.cart={}; S.notes={};
+  if(S.acumListener){ S.acumListener(); S.acumListener=null; }
+  stopBillar();
+  document.getElementById('hdrMesa').classList.remove('on');
+  go('s-mesa');
+}
+
+// ── ACUMULADO ──────────────────────────────────────────────
+function escucharAcum(mesa){
+  if(S.acumListener){ S.acumListener(); S.acumListener=null; }
+  var key = mesa.replace(/\s/g,'_');
+  S.acumListener = db.ref('comandas').orderByChild('mesa').equalTo(mesa).on('value', function(snap){
+    var items=[];
+    snap.forEach(function(c){
+      var d=c.val();
+      if(d.estado!=='Cobrado' && d.estado!=='Anulado') items.push(d);
+    });
+    var total=items.reduce(function(s,i){return s+(i.subtotal||0);},0);
+    document.getElementById('acumVal').textContent='Q'+total.toFixed(2);
+    renderAcum(items);
+  });
+}
+
+function renderAcum(items){
+  var total=items.reduce(function(s,i){return s+(i.subtotal||0);},0);
+  document.getElementById('acumSub').textContent=(S.mesa||'')+' — '+items.length+' ítem(s)';
+  var list=document.getElementById('acumList'); list.innerHTML='';
+  if(!items.length){
+    list.innerHTML='<div style="color:var(--muted);text-align:center;padding:24px;font-size:.85rem">Sin pedidos enviados aún</div>';
+  } else {
+    items.forEach(function(i){
+      var div=document.createElement('div'); div.className='acum-item';
+      div.innerHTML='<div style="flex:1"><div class="acum-prod">'+i.producto+'</div>'+
+        '<div class="acum-meta">x'+i.cantidad+' · Q'+(i.precio||0).toFixed(2)+' c/u</div>'+
+        (i.comentario?'<div class="acum-note">📝 '+i.comentario+'</div>':'')+
+        '</div><div class="acum-sub">Q'+(i.subtotal||0).toFixed(2)+'</div>';
+      list.appendChild(div);
+    });
+  }
+  var tr=document.createElement('div'); tr.className='tot-row';
+  tr.innerHTML='<div class="tot-lbl">Total acumulado</div><div class="tot-val">Q'+total.toFixed(2)+'</div>';
+  list.appendChild(tr);
+}
+
+// ── PRODUCTOS ──────────────────────────────────────────────
+function buildCats(){
+  var cats=['Todo']; var seen={};
+  PRODUCTOS.forEach(function(p){ var c=p.destino==='Ninguno'?'Billar':p.destino; if(!seen[c]){seen[c]=true;cats.push(c);} });
+  var el=document.getElementById('cats'); el.innerHTML='';
+  cats.forEach(function(c){
+    var t=document.createElement('div');
+    t.className='cat'+(c===S.cat?' on':'');
+    t.textContent=c==='Barra'?'🍺 Barra':c==='Cocina'?'🍳 Cocina':c==='Billar'?'🎱 Billar':'Todos';
+    t.onclick=function(){ S.cat=c; document.querySelectorAll('.cat').forEach(function(x){x.classList.remove('on');}); t.classList.add('on'); renderProds(); };
+    el.appendChild(t);
+  });
+}
+
+function renderProds(){
+  var q=document.getElementById('searchInp').value.toLowerCase();
+  var list=document.getElementById('prodList');
+  var sy=list.scrollTop; list.innerHTML='';
+  if(BILLAR_MESAS.indexOf(S.mesa)!==-1&&(S.cat==='Todo'||S.cat==='Billar')&&(!q||'billar'.includes(q)||'hora'.includes(q)))
+    list.appendChild(mkBillarCard());
+  var filtered=PRODUCTOS.filter(function(p){
+    var mc=S.cat==='Todo'||(S.cat==='Billar'&&p.destino==='Ninguno')||p.destino===S.cat;
+    var mq=!q||p.nombre.toLowerCase().includes(q);
+    return mc&&mq&&p.destino!=='Ninguno';
+  });
+  filtered.forEach(function(p){ list.appendChild(mkProdCard(p)); });
+  list.scrollTop=sy;
+  updateCartBar();
+}
+
+function mkProdCard(p){
+  var qty=S.cart[p.nombre]||0; var inCart=qty>0;
+  var note=S.notes[p.nombre]||'';
+  var safeId='ta_'+p.nombre.replace(/[^a-zA-Z0-9]/g,'_');
+  var ico=p.destino==='Barra'?'🍺 Barra':'🍳 Cocina';
+  var card=document.createElement('div');
+  card.className='pcard'+(inCart?' inc':''); card.dataset.nombre=p.nombre;
+  var row=document.createElement('div'); row.className='pcard-row';
+  var info=document.createElement('div'); info.className='pinfo';
+  info.innerHTML='<div class="pname">'+p.nombre+'</div><div class="pprice">Q'+p.precio.toFixed(2)+'</div><div class="pdest">'+ico+'</div>';
+  var ctrl=document.createElement('div'); ctrl.className='qty-ctrl';
+  var bM=document.createElement('button'); bM.className='qbtn'; bM.textContent='−';
+  bM.onclick=function(e){ e.stopPropagation(); chgQty(p,-1); };
+  var inp=document.createElement('input'); inp.className='qval'; inp.type='number'; inp.min='0'; inp.step='1'; inp.value=qty;
+  inp.onclick=function(e){ e.stopPropagation(); };
+  inp.oninput=function(e){ e.stopPropagation(); fijQty(p,parseInt(this.value)||0); };
+  var bP=document.createElement('button'); bP.className='qbtn'; bP.textContent='+';
+  bP.onclick=function(e){ e.stopPropagation(); chgQty(p,1); };
+  ctrl.appendChild(bM); ctrl.appendChild(inp); ctrl.appendChild(bP);
+  row.appendChild(info); row.appendChild(ctrl); card.appendChild(row);
+  if(inCart){
+    var nb=document.createElement('button'); nb.className='note-btn'+(note?' on':'');
+    nb.textContent=note?'📝 '+note:'📝 Agregar nota';
+    nb.onclick=function(e){ e.stopPropagation(); var ta=document.getElementById(safeId); if(ta){ta.classList.toggle('on');if(ta.classList.contains('on'))ta.focus();} };
+    info.appendChild(nb);
+    var ta=document.createElement('textarea'); ta.className='note-ta'+(note?' on':'');
+    ta.id=safeId; ta.placeholder='📝 nota para este producto...'; ta.rows=1; ta.value=note;
+    ta.onclick=function(e){ e.stopPropagation(); };
+    ta.oninput=function(){ S.notes[p.nombre]=ta.value.trim(); nb.textContent=ta.value.trim()?'📝 '+ta.value.trim():'📝 Agregar nota'; nb.classList.toggle('on',!!ta.value.trim()); };
+    card.appendChild(ta);
+  }
+  return card;
+}
+
+function chgQty(p,delta){ S.cart[p.nombre]=Math.max(0,(S.cart[p.nombre]||0)+delta); if(!S.cart[p.nombre])delete S.notes[p.nombre]; renderProds(); }
+function fijQty(p,val){ S.cart[p.nombre]=Math.max(0,val); if(!S.cart[p.nombre])delete S.notes[p.nombre]; renderProds(); }
+
+function updateCartBar(){
+  var items=getCartItems(); var total=items.reduce(function(s,i){return s+i.subtotal;},0);
+  var bar=document.getElementById('cartBar');
+  if(items.length){ bar.classList.add('on'); document.getElementById('cartCnt').textContent=items.length+' producto(s)'; document.getElementById('cartTot').textContent='Q'+total.toFixed(2); }
+  else bar.classList.remove('on');
+}
+
+function getCartItems(){
+  return Object.keys(S.cart).filter(function(k){return S.cart[k]>0;}).map(function(nombre){
+    var p=PRODUCTOS.find(function(x){return x.nombre===nombre;})||{precio:0};
+    return{nombre:nombre,cantidad:S.cart[nombre],precio:p.precio,subtotal:p.precio*S.cart[nombre],comentario:S.notes[nombre]||'',destino:p.destino};
+  });
+}
+
+// ── BILLAR ─────────────────────────────────────────────────
+function mkBillarCard(){
+  var card=document.createElement('div'); card.className='pcard bil-card';
+  var row=document.createElement('div'); row.className='pcard-row';
+  var info=document.createElement('div'); info.className='pinfo';
+  info.innerHTML='<div class="pname">🎱 Hora de Billar</div><div class="pprice">Q35.00 / hora</div><div class="pdest">Redondeo cada 30 min</div>';
+  var action=document.createElement('div');
+  if(S.billarOn){
+    var elapsed=S.billarStart?Date.now()-S.billarStart:0;
+    var mm=Math.floor(elapsed/60000); var ss=Math.floor((elapsed%60000)/1000);
+    var disp=document.createElement('div'); disp.className='bil-timer'; disp.id='bilDisp'; disp.textContent=pad(mm)+':'+pad(ss);
+    var sb=document.createElement('button'); sb.className='bil-btn bil-stop'; sb.textContent='Finalizar';
+    sb.onclick=function(e){ e.stopPropagation(); openBillarModal(); };
+    action.appendChild(disp); action.appendChild(sb);
+    startTick();
+  } else {
+    var ib=document.createElement('button'); ib.className='bil-btn bil-start'; ib.textContent='Iniciar timer';
+    ib.onclick=function(e){ e.stopPropagation(); openBillarModal(); };
+    action.appendChild(ib);
+  }
+  row.appendChild(info); row.appendChild(action); card.appendChild(row);
+  return card;
+}
+
+function openBillarModal(){
+  var btn=document.getElementById('billarOkBtn');
+  document.getElementById('billarTit').textContent=S.billarOn?'🎱 Finalizar Billar':'🎱 Billar';
+  document.getElementById('billarTxt').textContent=S.billarOn?'¿Finalizar y registrar el cobro automáticamente?':'Inicia el temporizador automático.';
+  btn.textContent=S.billarOn?'Finalizar y cobrar':'Iniciar timer';
+  btn.style.background=S.billarOn?'var(--danger)':'var(--billar)';
+  document.getElementById('mBillar').classList.add('on');
+}
+
+function accionBillar(){ closeModal('mBillar'); if(S.billarOn) finalizarBillar(); else iniciarBillar(); }
+
+function iniciarBillar(){
+  var key=S.mesa.replace(/\s/g,'_');
+  var now=Date.now();
+  db.ref('billar/'+key).set({activo:true,inicio:now,mesa:S.mesa,mesero:S.mesero});
+  S.billarOn=true; S.billarStart=now;
+  renderProds(); toast('Timer de billar iniciado');
+}
+
+function finalizarBillar(){
+  var key=S.mesa.replace(/\s/g,'_');
+  db.ref('billar/'+key).once('value',function(snap){
+    var d=snap.val(); if(!d)return;
+    var mins=(Date.now()-d.inicio)/60000;
+    var horas=Math.ceil(mins/30)*0.5; if(horas<0.5)horas=0.5;
+    db.ref('billar/'+key).update({activo:false});
+    S.billarOn=false; stopBillar();
+    // Enviar como comanda
+    enviarItems([{nombre:'Hora de Billar',cantidad:horas,precio:BILLAR_PRECIO,subtotal:horas*BILLAR_PRECIO,comentario:'',destino:'Ninguno'}]);
+    renderProds();
+    toast('Billar: '+horas+'h = Q'+(horas*BILLAR_PRECIO).toFixed(2));
+  });
+}
+
+function startTick(){
+  if(S.billarTick)clearInterval(S.billarTick);
+  S.billarTick=setInterval(function(){
+    var d=document.getElementById('bilDisp'); if(!d||!S.billarStart)return;
+    var e=Date.now()-S.billarStart;
+    d.textContent=pad(Math.floor(e/60000))+':'+pad(Math.floor((e%60000)/1000));
+  },500);
+}
+function stopBillar(){ if(S.billarTick){clearInterval(S.billarTick);S.billarTick=null;} S.billarStart=null; }
+function pad(n){ return n<10?'0'+n:''+n; }
+
+// ── ENVIAR ─────────────────────────────────────────────────
+function enviar(){
+  var items=getCartItems(); if(!items.length)return;
+  document.getElementById('btnSend').disabled=true;
+  enviarItems(items);
+  var sent=items.slice(); S.cart={}; S.notes={};
+  renderProds(); mostrarOk(sent);
+}
+
+function enviarItems(items){
+  var now=Date.now();
+  var mesaKey=S.mesa.replace(/\s/g,'_');
+  var totalMesa=0;
+  items.forEach(function(item){
+    var id=db.ref('comandas').push().key;
+    db.ref('comandas/'+id).set({
+      id:id, mesa:S.mesa, mesaKey:mesaKey,
+      producto:item.nombre, cantidad:item.cantidad,
+      precio:item.precio, subtotal:item.subtotal,
+      comentario:item.comentario||'', destino:item.destino,
+      mesero:S.mesero||'', estado:'Pendiente',
+      timestamp:now, fecha:new Date().toLocaleDateString('es-GT')
+    });
+    totalMesa+=item.subtotal;
+  });
+  // Actualizar total de mesa en tiempo real
+  db.ref('mesas/'+mesaKey).transaction(function(current){
+    var cur=current||{mesa:S.mesa,total:0};
+    cur.total=(cur.total||0)+totalMesa;
+    cur.mesa=S.mesa;
+    cur.ocupada=true;
+    return cur;
+  });
+}
+
+function mostrarOk(items){
+  var total=items.reduce(function(s,i){return s+i.subtotal;},0);
+  document.getElementById('okSub').textContent=(S.mesa||'')+' · '+(S.mesero||'');
+  var det=document.getElementById('okDetail'); det.innerHTML='';
+  items.forEach(function(i){
+    var div=document.createElement('div'); div.className='ok-item';
+    div.innerHTML='<div class="ok-row"><span>'+i.nombre+' x'+i.cantidad+'</span><span>Q'+i.subtotal.toFixed(2)+'</span></div>'+(i.comentario?'<div class="ok-note">📝 '+i.comentario+'</div>':'');
+    det.appendChild(div);
+  });
+  var tot=document.createElement('div'); tot.className='ok-item';
+  tot.innerHTML='<div class="ok-row" style="font-weight:800"><span>Total enviado</span><span>Q'+total.toFixed(2)+'</span></div>';
+  det.appendChild(tot);
+  document.getElementById('btnSend').disabled=false;
+  go('s-ok');
+}
+
+// ── NAV ────────────────────────────────────────────────────
+function go(id){ document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');}); document.getElementById(id).classList.add('on'); window.scrollTo(0,0); }
+function loader(on){ document.getElementById('gLoader').classList.toggle('on',on); }
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2800); }
+</script>
+</body>
+</html>

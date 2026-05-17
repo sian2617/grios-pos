@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donde los Grios — Barra</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0d13;--surface:#111520;--surface2:#181d2a;--border:#1e2535;--accent:#3b82f6;--danger:#ef4444;--warn:#f5a623;--text:#eef0f5;--muted:#4a5a7a;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh}
+header{background:var(--surface);border-bottom:3px solid var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px #3b82f622}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);letter-spacing:3px}
+.hdr-sub{font-size:.75rem;color:var(--muted);font-weight:600;margin-top:-2px}
+.badge{background:var(--accent);color:#000;font-weight:800;font-size:.85rem;padding:5px 16px;border-radius:999px}
+.hdr-time{color:var(--muted);font-size:.88rem;font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:1px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:12px}
+.empty-ico{font-size:5rem;opacity:.2}
+.empty-txt{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;color:var(--accent);opacity:.3}
+.empty-sub{color:var(--muted);font-size:.85rem;opacity:.5}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:16px}
+.kcard{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);overflow:hidden;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.kcard.urgent{border-color:var(--danger);box-shadow:0 0 20px #ef444422}
+.kcard.leaving{opacity:0;transform:scale(.92);transition:all .4s ease}
+.card-hdr{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-mesa{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;color:var(--accent)}
+.card-mesa.urgent{color:var(--danger)}
+.card-right{display:flex;align-items:center;gap:8px}
+.card-hora{font-size:.75rem;color:var(--muted);font-weight:700}
+.card-age{font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:999px}
+.age-ok{background:#3b82f622;color:var(--accent)}
+.age-warn{background:#f5a62322;color:var(--warn)}
+.age-hot{background:#ef444422;color:var(--danger)}
+.card-items{padding:10px 16px}
+.citem{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.citem:last-child{border-bottom:none}
+.cqty{background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:1rem;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
+.citem.urgent .cqty{background:var(--danger);color:#fff}
+.cname{font-weight:700;font-size:.9rem;flex:1}
+.cnote{font-size:.75rem;color:#fca5a5;margin-top:2px}
+.card-notes{margin:0 16px 10px}
+.note-block{background:#ef444415;border-left:3px solid var(--danger);padding:8px 12px;border-radius:0 8px 8px 0;margin-bottom:6px}
+.note-prod{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--danger);margin-bottom:2px}
+.note-txt{font-size:.85rem;color:#fca5a5;font-weight:600}
+.card-footer{padding:10px 16px 14px}
+.btn-listo{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:.3px;transition:opacity .15s}
+.btn-listo:active{opacity:.8}
+.btn-listo:disabled{opacity:.5;cursor:default}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid var(--accent);color:var(--accent);padding:10px 24px;border-radius:999px;font-size:.85rem;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<header>
+  <div class="hdr-left">
+    <div>
+      <div class="hdr-title">🍺 BARRA</div>
+      <div class="hdr-sub">Donde los Grios</div>
+    </div>
+    <div class="badge" id="badge">0</div>
+  </div>
+  <div class="hdr-time" id="reloj"></div>
+</header>
+<div id="cont"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDPjFVieeQHxrz97udHcCx1QR8w_vMPYS0",
+  databaseURL:"https://pos-restaurante-383b0-default-rtdb.firebaseio.com",
+  projectId:"pos-restaurante-383b0"
+});
+const db=firebase.database();
+const DESTINO='Barra';
+
+setInterval(function(){
+  var n=new Date();
+  document.getElementById('reloj').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+},1000);
+function pad(n){return n<10?'0'+n:''+n;}
+
+db.ref('comandas').orderByChild('destino').equalTo(DESTINO).on('value',function(snap){
+  var mesas={};
+  snap.forEach(function(c){
+    var d=c.val();
+    if(d.estado!=='Pendiente')return;
+    if(!mesas[d.mesa]) mesas[d.mesa]={mesa:d.mesa,hora:d.timestamp,items:[],notas:[],ids:[]};
+    mesas[d.mesa].items.push({id:c.key,producto:d.producto,cantidad:d.cantidad,comentario:d.comentario||''});
+    mesas[d.mesa].ids.push(c.key);
+    if(d.comentario) mesas[d.mesa].notas.push({producto:d.producto,nota:d.comentario});
+    if(d.timestamp<mesas[d.mesa].hora) mesas[d.mesa].hora=d.timestamp;
+  });
+  render(Object.values(mesas));
+});
+
+function render(mesas){
+  var cont=document.getElementById('cont');
+  document.getElementById('badge').textContent=mesas.length+(mesas.length===1?' pedido':' pedidos');
+  if(!mesas.length){
+    cont.innerHTML='<div class="empty"><div class="empty-ico">✓</div><div class="empty-txt">Todo listo</div><div class="empty-sub">No hay pedidos pendientes</div></div>';
+    return;
+  }
+  mesas.sort(function(a,b){return a.hora-b.hora;});
+  var grid=document.createElement('div'); grid.className='grid';
+  mesas.forEach(function(m){
+    var mins=Math.floor((Date.now()-m.hora)/60000);
+    var ageClass=mins>=15?'age-hot':mins>=8?'age-warn':'age-ok';
+    var ageTxt=mins<1?'Ahora':mins+'min';
+    var urgent=mins>=15;
+    var card=document.createElement('div');
+    card.className='kcard'+(urgent?' urgent':'');
+    card.id='card-'+m.mesa.replace(/\s/g,'_');
+    var hora=new Date(m.hora);
+    var horaTxt=pad(hora.getHours())+':'+pad(hora.getMinutes());
+    var html='<div class="card-hdr">'+
+      '<div class="card-mesa'+(urgent?' urgent':'')+'">'+m.mesa+'</div>'+
+      '<div class="card-right"><div class="card-hora">'+horaTxt+'</div><div class="card-age '+ageClass+'">'+ageTxt+'</div></div>'+
+      '</div><div class="card-items">';
+    m.items.forEach(function(i){
+      html+='<div class="citem'+(urgent?' urgent':'')+'">'+
+        '<div class="cqty">'+i.cantidad+'</div>'+
+        '<div><div class="cname">'+i.producto+'</div>'+
+        (i.comentario?'<div class="cnote">📝 '+i.comentario+'</div>':'')+
+        '</div></div>';
+    });
+    html+='</div>';
+    if(m.notas.length){
+      html+='<div class="card-notes">';
+      m.notas.forEach(function(n){
+        html+='<div class="note-block"><div class="note-prod">⚠ '+n.producto+'</div><div class="note-txt">'+n.nota+'</div></div>';
+      });
+      html+='</div>';
+    }
+    html+='<div class="card-footer"><button class="btn-listo" onclick="marcarListo('+JSON.stringify(m.ids)+',this)">✓ LISTO</button></div>';
+    card.innerHTML=html;
+    grid.appendChild(card);
+  });
+  cont.innerHTML=''; cont.appendChild(grid);
+}
+
+function marcarListo(ids,btn){
+  btn.disabled=true; btn.textContent='Enviando...';
+  var updates={};
+  ids.forEach(function(id){ updates['comandas/'+id+'/estado']='Listo'; });
+  db.ref().update(updates).then(function(){
+    var card=btn.closest('.kcard');
+    card.classList.add('leaving');
+    setTimeout(function(){ card.remove(); },400);
+    toast('✓ Pedido entregado');
+  }).catch(function(){ btn.disabled=false; btn.textContent='✓ LISTO'; });
+}
+
+function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2500); }
+</script>
+</body>
+</html>
