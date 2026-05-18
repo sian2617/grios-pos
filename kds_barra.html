@@ -30,7 +30,7 @@ header{background:var(--surface);border-bottom:3px solid var(--accent);padding:1
 .card-right{display:flex;align-items:center;gap:8px}
 .card-hora{font-size:.75rem;color:var(--muted);font-weight:700}
 .card-age{font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:999px}
-.age-ok{background:#3b82f622;color:var(--accent)}
+.age-ok{background:#22c55e22;color:var(--accent)}
 .age-warn{background:#f5a62322;color:var(--warn)}
 .age-hot{background:#ef444422;color:var(--danger)}
 .card-items{padding:10px 16px}
@@ -128,13 +128,7 @@ function render(mesas){
         '</div></div>';
     });
     html+='</div>';
-    if(m.notas.length){
-      html+='<div class="card-notes">';
-      m.notas.forEach(function(n){
-        html+='<div class="note-block"><div class="note-prod">⚠ '+n.producto+'</div><div class="note-txt">'+n.nota+'</div></div>';
-      });
-      html+='</div>';
-    }
+
     html+='<div class="card-footer"><button class="btn-listo" onclick="marcarListo('+JSON.stringify(m.ids)+',this)">✓ LISTO</button></div>';
     card.innerHTML=html;
     grid.appendChild(card);
@@ -142,16 +136,23 @@ function render(mesas){
   cont.innerHTML=''; cont.appendChild(grid);
 }
 
-function marcarListo(ids,btn){
+function marcarListo(ids, btn, card){
   btn.disabled=true; btn.textContent='Enviando...';
-  var updates={};
-  ids.forEach(function(id){ updates['comandas/'+id+'/estado']='Listo'; });
-  db.ref().update(updates).then(function(){
-    var card=btn.closest('.kcard');
-    card.classList.add('leaving');
-    setTimeout(function(){ card.remove(); },400);
+  var promises=ids.map(function(id){
+    return db.ref('comandas/'+id+'/estado').set('Listo');
+  });
+  Promise.all(promises).then(function(){
+    card.style.transition='all .4s ease';
+    card.style.opacity='0';
+    card.style.transform='scale(.92)';
+    setTimeout(function(){ if(card.parentNode) card.parentNode.removeChild(card); },400);
     toast('✓ Pedido entregado');
-  }).catch(function(){ btn.disabled=false; btn.textContent='✓ LISTO'; });
+  }).catch(function(e){
+    console.error('Error:', e);
+    btn.disabled=false;
+    btn.textContent='✓ LISTO';
+    toast('Error al marcar listo');
+  });
 }
 
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2500); }
