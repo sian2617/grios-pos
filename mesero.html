@@ -114,7 +114,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;disp
 .tot-lbl{font-weight:700;color:var(--muted);font-size:.85rem}
 .tot-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--accent)}
 .btn-back{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);cursor:pointer;width:100%;margin-top:16px}
-#s-ok{align-items:center;justify-content:center;padding:32px 20px;text-align:center}
+#s-ok{align-items:center;justify-content:flex-start;padding:40px 20px 40px;text-align:center;overflow-y:auto}
 .ok-circle{width:80px;height:80px;background:var(--cocina);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .ok-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;margin-bottom:8px}
@@ -124,8 +124,8 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;disp
 .ok-item:last-child{border-bottom:none}
 .ok-row{display:flex;justify-content:space-between}
 .ok-note{font-size:.75rem;color:var(--accent);margin-top:2px}
-.btn-nueva{background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:15px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;width:100%;margin-bottom:10px}
-.btn-mas{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;width:100%}
+.btn-nueva{background:var(--accent);color:#000;border:none;border-radius:var(--rs);padding:15px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;cursor:pointer;width:100%;margin-bottom:10px;position:relative;z-index:10}
+.btn-mas{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:13px;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;color:var(--text);cursor:pointer;width:100%;position:relative;z-index:10}
 .modal-ov{position:fixed;inset:0;background:#000b;z-index:500;display:none;align-items:flex-end;justify-content:center}
 .modal-ov.on{display:flex}
 .modal{background:var(--surface);border-radius:var(--r) var(--r) 0 0;padding:24px 20px;width:100%;max-width:480px;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
@@ -208,12 +208,14 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;disp
 </div>
 
 <div class="screen" id="s-ok">
-  <div class="ok-circle">✓</div>
-  <div class="ok-title">¡Comanda enviada!</div>
-  <div class="ok-sub" id="okSub"></div>
-  <div class="ok-detail" id="okDetail"></div>
-  <button class="btn-nueva" onclick="goMesa()">Nueva mesa</button>
-  <button class="btn-mas" onclick="go('s-prod')">+ Agregar más a esta mesa</button>
+  <div style="width:100%;max-width:480px;margin:0 auto;padding:0 4px">
+    <div class="ok-circle">✓</div>
+    <div class="ok-title">¡Comanda enviada!</div>
+    <div class="ok-sub" id="okSub"></div>
+    <div class="ok-detail" id="okDetail"></div>
+    <button class="btn-nueva" onclick="goMesa()">Nueva mesa</button>
+    <button class="btn-mas" onclick="go('s-prod')">+ Agregar más a esta mesa</button>
+  </div>
 </div>
 
 <div class="modal-ov" id="mLogout">
