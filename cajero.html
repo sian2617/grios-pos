@@ -276,8 +276,13 @@ function renderDetalle(){
     renderResumen(); return;
   }
   items.forEach(function(item){
-    var pago=S.pagos[item.id]||'Efectivo';
+    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:item.cantidad,cantTar:0};
+    if(typeof pago==='string') pago={tipo:pago,cantEf:item.cantidad,cantTar:0};
+    S.pagos[item.id]=pago;
+
     var div=document.createElement('div'); div.className='pitem';
+
+    // Top row
     var top=document.createElement('div'); top.className='pitem-top';
     var info=document.createElement('div'); info.className='pitem-info';
     info.innerHTML='<div class="pitem-name">'+item.producto+'</div>'+
@@ -286,17 +291,73 @@ function renderDetalle(){
     var sub=document.createElement('div'); sub.className='pitem-sub';
     sub.textContent='Q'+Number(item.subtotal).toFixed(2);
     top.appendChild(info); top.appendChild(sub); div.appendChild(top);
-    var actions=document.createElement('div'); actions.className='pitem-actions';
-    var mpago=document.createElement('div'); mpago.className='mpago';
-    var bEf=document.createElement('div'); bEf.className='mp-btn efectivo'+(pago==='Efectivo'?' sel':''); bEf.textContent='💵 Efectivo';
-    bEf.onclick=(function(id){return function(){setMetodo(id,'Efectivo');};})(item.id);
-    var bTar=document.createElement('div'); bTar.className='mp-btn tarjeta'+(pago==='Tarjeta'?' sel':''); bTar.textContent='💳 Tarjeta';
-    bTar.onclick=(function(id){return function(){setMetodo(id,'Tarjeta');};})(item.id);
-    mpago.appendChild(bEf); mpago.appendChild(bTar); actions.appendChild(mpago);
+
+    // Si cantidad > 1, mostrar opcion de dividir
+    var qty=Number(item.cantidad)||1;
+    if(qty>1){
+      // Split mode
+      var splitDiv=document.createElement('div');
+      splitDiv.style.cssText='margin-top:10px;background:var(--sur2);border-radius:var(--rs);padding:10px 12px';
+      splitDiv.innerHTML='<div style="font-size:.72rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dividir pago ('+qty+' unidades)</div>';
+
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;gap:10px;align-items:center';
+
+      // Efectivo input
+      var efWrap=document.createElement('div'); efWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
+      var efLbl=document.createElement('div'); efLbl.style.cssText='font-size:.7rem;color:var(--grn);font-weight:700'; efLbl.textContent='💵 Efectivo';
+      var efInp=document.createElement('input'); efInp.type='number'; efInp.min='0'; efInp.max=qty; efInp.step='1'; efInp.value=pago.cantEf;
+      efInp.style.cssText='background:var(--sur);border:1.5px solid var(--grn);border-radius:var(--rs);padding:7px;color:var(--txt);font-family:"Nunito",sans-serif;font-size:.9rem;font-weight:700;width:100%;outline:none;text-align:center';
+      efWrap.appendChild(efLbl); efWrap.appendChild(efInp);
+
+      var sep=document.createElement('div'); sep.textContent='+'; sep.style.cssText='color:var(--mut);font-weight:700;padding-top:18px';
+
+      // Tarjeta input
+      var tarWrap=document.createElement('div'); tarWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
+      var tarLbl=document.createElement('div'); tarLbl.style.cssText='font-size:.7rem;color:var(--blue);font-weight:700'; tarLbl.textContent='💳 Tarjeta';
+      var tarInp=document.createElement('input'); tarInp.type='number'; tarInp.min='0'; tarInp.max=qty; tarInp.step='1'; tarInp.value=pago.cantTar;
+      tarInp.style.cssText='background:var(--sur);border:1.5px solid var(--blue);border-radius:var(--rs);padding:7px;color:var(--txt);font-family:"Nunito",sans-serif;font-size:.9rem;font-weight:700;width:100%;outline:none;text-align:center';
+      tarWrap.appendChild(tarLbl); tarWrap.appendChild(tarInp);
+
+      // Total indicator
+      var totWrap=document.createElement('div'); totWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
+      var totLbl=document.createElement('div'); totLbl.style.cssText='font-size:.7rem;color:var(--mut);font-weight:700'; totLbl.textContent='= Total';
+      var totDisp=document.createElement('div');
+      totDisp.style.cssText='background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:7px;color:var(--acc);font-family:"Bebas Neue",sans-serif;font-size:1rem;width:100%;text-align:center';
+      var updateTot=function(){
+        var e=parseInt(efInp.value)||0; var t=parseInt(tarInp.value)||0;
+        totDisp.textContent=(e+t)+'/'+qty;
+        totDisp.style.borderColor=(e+t===qty)?'var(--grn)':'var(--red)';
+        totDisp.style.color=(e+t===qty)?'var(--grn)':'var(--red)';
+        S.pagos[item.id]={tipo:'Mixto',cantEf:e,cantTar:t};
+      };
+      efInp.oninput=updateTot; tarInp.oninput=updateTot;
+      updateTot();
+      totWrap.appendChild(totLbl); totWrap.appendChild(totDisp);
+
+      row.appendChild(efWrap); row.appendChild(sep); row.appendChild(tarWrap); row.appendChild(totWrap);
+      splitDiv.appendChild(row);
+      div.appendChild(splitDiv);
+    } else {
+      // Single unit - simple efectivo/tarjeta buttons
+      var actions=document.createElement('div'); actions.className='pitem-actions';
+      var mpago=document.createElement('div'); mpago.className='mpago';
+      var bEf=document.createElement('div'); bEf.className='mp-btn efectivo'+(pago.tipo==='Efectivo'?' sel':''); bEf.textContent='💵 Efectivo';
+      bEf.onclick=(function(id){return function(){S.pagos[id]={tipo:'Efectivo',cantEf:1,cantTar:0};renderDetalle();};})(item.id);
+      var bTar=document.createElement('div'); bTar.className='mp-btn tarjeta'+(pago.tipo==='Tarjeta'?' sel':''); bTar.textContent='💳 Tarjeta';
+      bTar.onclick=(function(id){return function(){S.pagos[id]={tipo:'Tarjeta',cantEf:0,cantTar:1};renderDetalle();};})(item.id);
+      mpago.appendChild(bEf); mpago.appendChild(bTar); actions.appendChild(mpago);
+      div.appendChild(actions);
+    }
+
+    // Boton anular
+    var anulRow=document.createElement('div'); anulRow.style.cssText='display:flex;justify-content:flex-end;margin-top:8px';
     var bAn=document.createElement('button'); bAn.className='btn-anular'; bAn.textContent='Anular';
     bAn.onclick=(function(id){return function(){anularItem(id);};})(item.id);
-    actions.appendChild(bAn); div.appendChild(actions); list.appendChild(div);
+    anulRow.appendChild(bAn); div.appendChild(anulRow);
+    list.appendChild(div);
   });
+
   var total=items.reduce(function(s,i){return s+Number(i.subtotal);},0);
   document.getElementById('detTotal').textContent='Q'+total.toFixed(2);
   document.getElementById('detItems').textContent=items.length+' producto(s)';
@@ -304,7 +365,7 @@ function renderDetalle(){
   renderResumen();
 }
 
-function setMetodo(id,m){ S.pagos[id]=m; renderDetalle(); }
+function setMetodo(id,m){ S.pagos[id]={tipo:m,cantEf:m==='Efectivo'?1:0,cantTar:m==='Tarjeta'?1:0}; renderDetalle(); }
 
 function anularItem(id){
   if(!confirm('¿Anular este producto?'))return;
@@ -321,7 +382,13 @@ function anularItem(id){
 function renderResumen(){
   var items=S.items.filter(function(i){return i.estado!=='Anulado';});
   var ef=0,tar=0;
-  items.forEach(function(i){var m=S.pagos[i.id]||'Efectivo';if(m==='Efectivo')ef+=Number(i.subtotal);else tar+=Number(i.subtotal);});
+  items.forEach(function(i){
+    var pago=S.pagos[i.id]||{tipo:'Efectivo',cantEf:i.cantidad,cantTar:0};
+    if(typeof pago==='string') pago={tipo:pago,cantEf:Number(i.cantidad),cantTar:0};
+    var precio=Number(i.precio)||0;
+    ef+=pago.cantEf*precio;
+    tar+=pago.cantTar*precio;
+  });
   var com=tar*0.05; var tot=ef+tar;
   var res=document.getElementById('resumen'); res.innerHTML='';
   function mkR(lbl,val,cls){var d=document.createElement('div');d.className='res-item';d.innerHTML='<div class="res-lbl">'+lbl+'</div><div class="res-val '+cls+'">Q'+val.toFixed(2)+'</div>';res.appendChild(d);}
@@ -332,7 +399,12 @@ function mostrarConfirm(){
   var items=S.items.filter(function(i){return i.estado!=='Anulado';});
   if(!items.length)return;
   var ef=0,tar=0;
-  items.forEach(function(i){var m=S.pagos[i.id]||'Efectivo';if(m==='Efectivo')ef+=Number(i.subtotal);else tar+=Number(i.subtotal);});
+  items.forEach(function(i){
+    var pago=S.pagos[i.id]||{tipo:'Efectivo',cantEf:i.cantidad,cantTar:0};
+    if(typeof pago==='string') pago={tipo:pago,cantEf:Number(i.cantidad),cantTar:0};
+    var precio=Number(i.precio)||0;
+    ef+=pago.cantEf*precio; tar+=pago.cantTar*precio;
+  });
   var com=tar*0.05; var tot=ef+tar;
   document.getElementById('mConfirmSub').textContent=S.mesa+' · '+items.length+' producto(s)';
   var det=document.getElementById('mConfirmDetalle'); det.innerHTML='';
@@ -349,12 +421,22 @@ function cobrarMesa(){
   var hora=pad(now.getHours())+':'+pad(now.getMinutes());
   var mk=S.mesa.replace(/\s/g,'_');
   var updates={};
+  updates['comandas/'+items[0].id+'/estado'];
   items.forEach(function(item){
-    var metodo=S.pagos[item.id]||'Efectivo';
+    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:item.cantidad,cantTar:0};
+    if(typeof pago==='string') pago={tipo:pago,cantEf:Number(item.cantidad),cantTar:0};
     updates['comandas/'+item.id+'/estado']='Cobrado';
-    updates['comandas/'+item.id+'/metodoPago']=metodo;
-    var hid=db.ref('historial_caja').push().key;
-    updates['historial_caja/'+hid]={id:hid,fecha:fecha,hora:hora,timestamp:now.getTime(),mesa:S.mesa,producto:item.producto,cantidad:item.cantidad,precio:item.precio,subtotal:item.subtotal,metodoPago:metodo,comentario:item.comentario||'',mesero:item.mesero||''};
+    updates['comandas/'+item.id+'/metodoPago']=pago.tipo;
+    var precio=Number(item.precio)||0;
+    // Si es mixto, crear dos registros en historial
+    if(pago.cantEf>0){
+      var hid=db.ref('historial_caja').push().key;
+      updates['historial_caja/'+hid]={id:hid,fecha:fecha,hora:hora,timestamp:now.getTime(),mesa:S.mesa,producto:item.producto,cantidad:pago.cantEf,precio:precio,subtotal:pago.cantEf*precio,metodoPago:'Efectivo',comentario:item.comentario||'',mesero:item.mesero||''};
+    }
+    if(pago.cantTar>0){
+      var hid2=db.ref('historial_caja').push().key;
+      updates['historial_caja/'+hid2]={id:hid2,fecha:fecha,hora:hora,timestamp:now.getTime(),mesa:S.mesa,producto:item.producto,cantidad:pago.cantTar,precio:precio,subtotal:pago.cantTar*precio,metodoPago:'Tarjeta',comentario:item.comentario||'',mesero:item.mesero||''};
+    }
   });
   updates['mesas/'+mk]={mesa:S.mesa,total:0,ocupada:false};
   db.ref().update(updates,function(err){
