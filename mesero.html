@@ -114,7 +114,7 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;disp
 .tot-lbl{font-weight:700;color:var(--muted);font-size:.85rem}
 .tot-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--accent)}
 .btn-back{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;color:var(--text);cursor:pointer;width:100%;margin-top:16px}
-#s-ok{align-items:center;justify-content:flex-start;padding:40px 20px 40px;text-align:center;overflow-y:auto}
+#s-ok{align-items:flex-start;justify-content:flex-start;padding:0;text-align:center;overflow-y:auto}
 .ok-circle{width:80px;height:80px;background:var(--cocina);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 20px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .ok-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;margin-bottom:8px}
@@ -208,13 +208,15 @@ body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;disp
 </div>
 
 <div class="screen" id="s-ok">
-  <div style="width:100%;max-width:480px;margin:0 auto;padding:0 4px">
+  <div style="width:100%;padding:24px 16px;display:flex;flex-direction:column;gap:12px">
     <div class="ok-circle">✓</div>
     <div class="ok-title">¡Comanda enviada!</div>
     <div class="ok-sub" id="okSub"></div>
     <div class="ok-detail" id="okDetail"></div>
-    <button class="btn-nueva" onclick="goMesa()">Nueva mesa</button>
-    <button class="btn-mas" onclick="go('s-prod')">+ Agregar más a esta mesa</button>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+      <div style="background:var(--accent);color:#000;border-radius:var(--rs);padding:16px;font-weight:800;font-size:1rem;text-align:center;cursor:pointer" onclick="goMesa()">🏠 Nueva mesa</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--rs);padding:14px;font-weight:700;font-size:.9rem;text-align:center;cursor:pointer" onclick="go('s-prod')">+ Agregar más a esta mesa</div>
+    </div>
   </div>
 </div>
 
