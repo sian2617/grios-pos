@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donde los Grios — Cuadre de Caja</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#0e1117;--sur:#161b24;--sur2:#1e2433;--bdr:#252d3d;--acc:#f5a623;--grn:#22c55e;--red:#ef4444;--blue:#3b82f6;--txt:#eef0f5;--mut:#6b7280;--r:14px;--rs:9px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Nunito',sans-serif;min-height:100vh}
+header{background:var(--sur);border-bottom:2px solid var(--acc);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--acc);letter-spacing:1px}
+.hdr-sub{font-size:.7rem;color:var(--mut)}
+.hdr-time{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--mut);letter-spacing:1px}
+.container{max-width:900px;margin:0 auto;padding:20px 16px}
+
+/* FILTROS */
+.filtros{background:var(--sur);border-radius:var(--r);padding:18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.f-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px}
+.f-label{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}
+.f-input{background:var(--sur2);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:9px 12px;color:var(--txt);font-family:'Nunito',sans-serif;font-size:.9rem;outline:none;width:100%}
+.f-input:focus{border-color:var(--acc)}
+.btn-buscar{background:var(--acc);color:#000;border:none;border-radius:var(--rs);padding:10px 22px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;white-space:nowrap;height:38px}
+.btn-export{background:var(--grn);color:#000;border:none;border-radius:var(--rs);padding:10px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;white-space:nowrap;height:38px;display:none}
+.btn-export.on{display:block}
+
+/* RESUMEN CARDS */
+.resumen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.res-card{background:var(--sur);border-radius:var(--r);padding:16px;border-left:4px solid var(--bdr)}
+.res-card.grn{border-color:var(--grn)}
+.res-card.blue{border-color:var(--blue)}
+.res-card.red{border-color:var(--red)}
+.res-card.acc{border-color:var(--acc)}
+.res-card.pur{border-color:#a855f7}
+.res-lbl{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);margin-bottom:6px}
+.res-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;line-height:1}
+.res-val.grn{color:var(--grn)}
+.res-val.blue{color:var(--blue)}
+.res-val.red{color:var(--red)}
+.res-val.acc{color:var(--acc)}
+.res-val.pur{color:#a855f7}
+
+/* TABLA */
+.tabla-wrap{background:var(--sur);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.tabla-hdr{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.tabla-tit{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.5px}
+.tabla-cnt{font-size:.78rem;color:var(--mut);font-weight:600}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--sur2);padding:10px 14px;text-align:left;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--mut);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--bdr);transition:background .1s}
+tbody tr:hover{background:var(--sur2)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:10px 14px;font-size:.85rem}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:800}
+.tag-ef{background:#22c55e22;color:var(--grn)}
+.tag-tar{background:#3b82f622;color:var(--blue)}
+.empty-state{text-align:center;padding:48px 20px;color:var(--mut)}
+.empty-ico{font-size:3rem;opacity:.3;margin-bottom:12px}
+.empty-txt{font-size:.9rem}
+
+/* RESUMEN POR MESA */
+.mesa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.mesa-card{background:var(--sur);border-radius:var(--r);padding:14px;border:1px solid var(--bdr)}
+.mesa-nombre{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--acc);margin-bottom:6px}
+.mesa-row{display:flex;justify-content:space-between;font-size:.8rem;padding:2px 0}
+.mesa-row span:last-child{font-weight:700}
+
+.loader{text-align:center;padding:32px;color:var(--mut);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="hdr-logo">📊 Cuadre de Caja — Donde los Grios</div>
+    <div class="hdr-sub">Historial y reportes de ventas</div>
+  </div>
+  <div class="hdr-time" id="reloj"></div>
+</header>
+
+<div class="container">
+  <!-- FILTROS -->
+  <div class="filtros">
+    <div class="f-group">
+      <div class="f-label">Fecha inicio</div>
+      <input type="date" class="f-input" id="fechaInicio">
+    </div>
+    <div class="f-group">
+      <div class="f-label">Fecha fin</div>
+      <input type="date" class="f-input" id="fechaFin">
+    </div>
+    <button class="btn-buscar" onclick="buscar()">Buscar</button>
+    <button class="btn-export" id="btnExport" onclick="exportarExcel()">📥 Exportar Excel</button>
+  </div>
+
+  <div id="contenido">
+    <div class="empty-state">
+      <div class="empty-ico">📊</div>
+      <div class="empty-txt">Selecciona un rango de fechas y presiona Buscar</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyDPjFVieeQHxrz97udHcCx1QR8w_vMPYS0",
+  authDomain: "pos-restaurante-383b0.firebaseapp.com",
+  databaseURL: "https://pos-restaurante-383b0-default-rtdb.firebaseio.com",
+  projectId: "pos-restaurante-383b0"
+});
+var db = firebase.database();
+
+function pad(n){ return n<10?'0'+n:''+n; }
+setInterval(function(){
+  var n=new Date();
+  document.getElementById('reloj').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+},1000);
+
+// Set default dates to today
+var hoy = new Date();
+var hoyStr = hoy.getFullYear()+'-'+pad(hoy.getMonth()+1)+'-'+pad(hoy.getDate());
+document.getElementById('fechaInicio').value = hoyStr;
+document.getElementById('fechaFin').value = hoyStr;
+
+var datosActuales = [];
+
+function fechaFirebaseToComparable(f) {
+  // f = "dd/mm/yyyy"
+  var p = f.split('/');
+  if (p.length !== 3) return '';
+  return p[2] + '-' + p[1] + '-' + p[0]; // yyyy-mm-dd
+}
+
+function buscar() {
+  var ini = document.getElementById('fechaInicio').value;
+  var fin = document.getElementById('fechaFin').value;
+  if (!ini || !fin) { alert('Selecciona ambas fechas'); return; }
+
+  document.getElementById('contenido').innerHTML = '<div class="loader">Cargando datos...</div>';
+  document.getElementById('btnExport').classList.remove('on');
+
+  db.ref('historial_caja').once('value', function(snap) {
+    var todos = [];
+    snap.forEach(function(c) {
+      var d = c.val();
+      var fechaComp = fechaFirebaseToComparable(d.fecha || '');
+      if (fechaComp >= ini && fechaComp <= fin) {
+        todos.push(d);
+      }
+    });
+
+    datosActuales = todos;
+    if (!todos.length) {
+      document.getElementById('contenido').innerHTML =
+        '<div class="empty-state"><div class="empty-ico">🔍</div><div class="empty-txt">No hay registros en ese rango de fechas</div></div>';
+      return;
+    }
+
+    document.getElementById('btnExport').classList.add('on');
+    renderResultados(todos, ini, fin);
+  });
+}
+
+function renderResultados(datos, ini, fin) {
+  var efectivo = 0, tarjeta = 0, total = 0;
+  var mesas = {}, productos = {};
+
+  datos.forEach(function(d) {
+    var sub = Number(d.subtotal) || 0;
+    total += sub;
+    if (d.metodoPago === 'Tarjeta') tarjeta += sub;
+    else efectivo += sub;
+
+    if (!mesas[d.mesa]) mesas[d.mesa] = { total: 0, efectivo: 0, tarjeta: 0 };
+    mesas[d.mesa].total += sub;
+    if (d.metodoPago === 'Tarjeta') mesas[d.mesa].tarjeta += sub;
+    else mesas[d.mesa].efectivo += sub;
+
+    if (!productos[d.producto]) productos[d.producto] = { cantidad: 0, total: 0 };
+    productos[d.producto].cantidad += Number(d.cantidad) || 0;
+    productos[d.producto].total += sub;
+  });
+
+  var comision = tarjeta * 0.05;
+  var neto = total - comision;
+
+  var html = '';
+
+  // RESUMEN
+  html += '<div class="resumen-grid">';
+  html += mkCard('Total Vendido', 'Q' + total.toFixed(2), 'acc');
+  html += mkCard('Efectivo', 'Q' + efectivo.toFixed(2), 'grn');
+  html += mkCard('Tarjeta', 'Q' + tarjeta.toFixed(2), 'blue');
+  html += mkCard('Comisión 5%', 'Q' + comision.toFixed(2), 'red');
+  html += mkCard('Neto Recibido', 'Q' + neto.toFixed(2), 'acc');
+  html += mkCard('Transacciones', datos.length + '', 'pur');
+  html += '</div>';
+
+  // RESUMEN POR MESA
+  var mesaKeys = Object.keys(mesas).sort();
+  if (mesaKeys.length) {
+    html += '<div class="tabla-wrap"><div class="tabla-hdr"><div class="tabla-tit">Resumen por Mesa</div></div>';
+    html += '<div class="mesa-grid" style="padding:14px">';
+    mesaKeys.forEach(function(m) {
+      var info = mesas[m];
+      html += '<div class="mesa-card">' +
+        '<div class="mesa-nombre">' + m + '</div>' +
+        '<div class="mesa-row"><span>Total</span><span>Q' + info.total.toFixed(2) + '</span></div>' +
+        '<div class="mesa-row"><span>Efectivo</span><span style="color:var(--grn)">Q' + info.efectivo.toFixed(2) + '</span></div>' +
+        '<div class="mesa-row"><span>Tarjeta</span><span style="color:var(--blue)">Q' + info.tarjeta.toFixed(2) + '</span></div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // TABLA DETALLE
+  html += '<div class="tabla-wrap">';
+  html += '<div class="tabla-hdr"><div class="tabla-tit">Detalle de Cobros</div><div class="tabla-cnt">' + datos.length + ' registros</div></div>';
+  html += '<div style="overflow-x:auto"><table><thead><tr>' +
+    '<th>Fecha</th><th>Hora</th><th>Mesa</th><th>Producto</th>' +
+    '<th>Cant.</th><th>Precio</th><th>Subtotal</th><th>Método</th><th>Mesero</th>' +
+    '</tr></thead><tbody>';
+
+  datos.sort(function(a,b){ return (b.timestamp||0)-(a.timestamp||0); });
+  datos.forEach(function(d) {
+    var isT = d.metodoPago === 'Tarjeta';
+    html += '<tr>' +
+      '<td>' + (d.fecha||'') + '</td>' +
+      '<td>' + (d.hora||'') + '</td>' +
+      '<td><strong>' + (d.mesa||'') + '</strong></td>' +
+      '<td>' + (d.producto||'') + '</td>' +
+      '<td style="text-align:center">' + (d.cantidad||'') + '</td>' +
+      '<td>Q' + Number(d.precio||0).toFixed(2) + '</td>' +
+      '<td><strong>Q' + Number(d.subtotal||0).toFixed(2) + '</strong></td>' +
+      '<td><span class="tag ' + (isT?'tag-tar':'tag-ef') + '">' + (d.metodoPago||'Efectivo') + '</span></td>' +
+      '<td style="color:var(--mut)">' + (d.mesero||'') + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+
+  document.getElementById('contenido').innerHTML = html;
+}
+
+function mkCard(lbl, val, cls) {
+  return '<div class="res-card ' + cls + '">' +
+    '<div class="res-lbl">' + lbl + '</div>' +
+    '<div class="res-val ' + cls + '">' + val + '</div>' +
+    '</div>';
+}
+
+function exportarExcel() {
+  if (!datosActuales.length) return;
+  var ini = document.getElementById('fechaInicio').value;
+  var fin = document.getElementById('fechaFin').value;
+
+  // Hoja de detalle
+  var detalle = datosActuales.map(function(d) {
+    return {
+      'Fecha': d.fecha || '',
+      'Hora': d.hora || '',
+      'Mesa': d.mesa || '',
+      'Producto': d.producto || '',
+      'Cantidad': d.cantidad || 0,
+      'Precio Unitario': Number(d.precio || 0),
+      'Subtotal': Number(d.subtotal || 0),
+      'Método de Pago': d.metodoPago || 'Efectivo',
+      'Mesero': d.mesero || '',
+      'Comentario': d.comentario || ''
+    };
+  });
+
+  // Hoja de resumen
+  var efectivo = 0, tarjeta = 0, total = 0;
+  datosActuales.forEach(function(d) {
+    var sub = Number(d.subtotal) || 0;
+    total += sub;
+    if (d.metodoPago === 'Tarjeta') tarjeta += sub;
+    else efectivo += sub;
+  });
+  var comision = tarjeta * 0.05;
+
+  var resumen = [
+    { 'Concepto': 'Período', 'Valor': ini + ' al ' + fin },
+    { 'Concepto': 'Total Vendido', 'Valor': total },
+    { 'Concepto': 'Efectivo', 'Valor': efectivo },
+    { 'Concepto': 'Tarjeta', 'Valor': tarjeta },
+    { 'Concepto': 'Comisión Tarjeta (5%)', 'Valor': comision },
+    { 'Concepto': 'Neto Recibido', 'Valor': total - comision },
+    { 'Concepto': 'Total Transacciones', 'Valor': datosActuales.length }
+  ];
+
+  var wb = XLSX.utils.book_new();
+  var wsResumen = XLSX.utils.json_to_sheet(resumen);
+  var wsDetalle = XLSX.utils.json_to_sheet(detalle);
+
+  XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
+  XLSX.utils.book_append_sheet(wb, wsDetalle, 'Detalle');
+
+  var nombre = 'Cuadre_' + ini + '_al_' + fin + '.xlsx';
+  XLSX.writeFile(wb, nombre);
+}
+</script>
+</body>
+</html>
