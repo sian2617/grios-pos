@@ -136,22 +136,22 @@ function render(mesas){
   cont.innerHTML=''; cont.appendChild(grid);
 }
 
-function marcarListo(ids,btn){
+function marcarListo(ids, btn, card){
   btn.disabled=true; btn.textContent='Enviando...';
   var promises=ids.map(function(id){
     return db.ref('comandas/'+id+'/estado').set('Listo');
   });
   Promise.all(promises).then(function(){
-    var card=btn.closest('.kcard');
     card.style.transition='all .4s ease';
     card.style.opacity='0';
     card.style.transform='scale(.92)';
-    setTimeout(function(){ card.remove(); },400);
+    setTimeout(function(){ if(card.parentNode) card.parentNode.removeChild(card); },400);
     toast('✓ Pedido entregado');
-  }).catch(function(e){ 
-    console.error(e);
-    btn.disabled=false; 
-    btn.textContent='✓ LISTO'; 
+  }).catch(function(e){
+    console.error('Error:', e);
+    btn.disabled=false;
+    btn.textContent='✓ LISTO';
+    toast('Error al marcar listo');
   });
 }
 
