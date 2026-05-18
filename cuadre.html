@@ -68,9 +68,37 @@ tbody td{padding:10px 14px;font-size:.85rem}
 .mesa-row span:last-child{font-weight:700}
 
 .loader{text-align:center;padding:32px;color:var(--mut);font-size:.9rem}
+
+#pin-screen{position:fixed;inset:0;background:#0e1117;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.pin-logo{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#f5a623;text-align:center;letter-spacing:2px}
+.pin-sub{font-size:.85rem;color:#6b7280;text-align:center;margin-bottom:28px}
+.pin-disp{background:#161b24;border:2px solid #252d3d;border-radius:14px;padding:14px 24px;width:100%;max-width:280px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:10px;color:#eef0f5;margin-bottom:8px;min-height:64px;transition:border-color .2s}
+.pin-disp.err{border-color:#ef4444;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pin-hint{color:#6b7280;font-size:.75rem;margin-bottom:22px;text-align:center;min-height:18px}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px}
+.pk{background:#1e2433;border:1px solid #252d3d;border-radius:9px;padding:15px;font-size:1.4rem;font-weight:700;cursor:pointer;color:#eef0f5;text-align:center;user-select:none;transition:all .12s}
+.pk:active{background:#f5a623;color:#000;transform:scale(.92)}
+.pk.del{background:transparent;color:#ef4444}
+.pk.ok{background:#f5a623;color:#000;font-weight:800}
+
 </style>
 </head>
 <body>
+
+<div id="pin-screen">
+  <div class="pin-logo">Donde los Grios</div>
+  <div class="pin-sub" id="pin-role">Cuadre de Caja — Solo el dueño</div>
+  <div class="pin-disp" id="pin-disp">_</div>
+  <div class="pin-hint" id="pin-hint">Ingresa el PIN de acceso</div>
+  <div class="pin-grid">
+    <div class="pk" onclick="pk('1')">1</div><div class="pk" onclick="pk('2')">2</div><div class="pk" onclick="pk('3')">3</div>
+    <div class="pk" onclick="pk('4')">4</div><div class="pk" onclick="pk('5')">5</div><div class="pk" onclick="pk('6')">6</div>
+    <div class="pk" onclick="pk('7')">7</div><div class="pk" onclick="pk('8')">8</div><div class="pk" onclick="pk('9')">9</div>
+    <div class="pk del" onclick="pkDel()">⌫</div><div class="pk" onclick="pk('0')">0</div><div class="pk ok" onclick="pkOk()">✓</div>
+  </div>
+</div>
+
 
 <header>
   <div>
@@ -303,6 +331,24 @@ function exportarExcel() {
   var nombre = 'Cuadre_' + ini + '_al_' + fin + '.xlsx';
   XLSX.writeFile(wb, nombre);
 }
+
+var PIN_CORRECTO = '2511';
+var pinBuf = '';
+function pk(d){ if(pinBuf.length>=4)return; pinBuf+=d; updPin(); }
+function pkDel(){ pinBuf=pinBuf.slice(0,-1); updPin(); document.getElementById('pin-hint').textContent='Ingresa el PIN de acceso'; document.getElementById('pin-disp').classList.remove('err'); }
+function updPin(){ document.getElementById('pin-disp').textContent=pinBuf?pinBuf.replace(/./g,'●'):'_'; }
+function pkOk(){
+  if(!pinBuf)return;
+  if(pinBuf===PIN_CORRECTO){
+    document.getElementById('pin-screen').style.display='none';
+  } else {
+    document.getElementById('pin-disp').classList.add('err');
+    document.getElementById('pin-hint').textContent='PIN incorrecto';
+    pinBuf='';
+    setTimeout(function(){ updPin(); document.getElementById('pin-disp').classList.remove('err'); document.getElementById('pin-hint').textContent='Ingresa el PIN de acceso'; },1000);
+  }
+}
+
 </script>
 </body>
 </html>
