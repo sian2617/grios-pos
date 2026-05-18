@@ -281,30 +281,7 @@ const MESEROS = [
   {pin:'1007',nombre:'Mesero 7'}
 ];
 const BMESAS = ['Billar A','Billar B'];
-const PRODS = [
-  {n:'Gallo 12 Onzas',p:12,d:'Barra'},{n:'Gallo LATA',p:12,d:'Barra'},
-  {n:'Heineken',p:20,d:'Barra'},{n:'Americano',p:10,d:'Barra'},
-  {n:'Capuccino',p:12,d:'Barra'},{n:'Moka',p:12,d:'Barra'},
-  {n:'Caramel Machiato',p:12,d:'Barra'},{n:'Cafe con leche',p:12,d:'Barra'},
-  {n:'Cabro 12 Onz',p:12,d:'Barra'},{n:'Montecarlo',p:18,d:'Barra'},
-  {n:'Dorada Draft',p:18,d:'Barra'},{n:'Agua Pura',p:8,d:'Barra'},
-  {n:'Naranjada con soda',p:10,d:'Barra'},{n:'Limonada con soda',p:10,d:'Barra'},
-  {n:'Bacardi Frambuesa',p:18,d:'Barra'},{n:'Orange',p:10,d:'Barra'},
-  {n:'Tikis',p:10,d:'Barra'},{n:'Mineral Lata',p:10,d:'Barra'},
-  {n:'Jarritos',p:16,d:'Barra'},{n:'Te frio',p:12,d:'Barra'},
-  {n:'Bebida de Mango',p:18,d:'Barra'},{n:'Octavo Quetzalteca',p:15,d:'Barra'},
-  {n:'Blue Lagoon',p:18,d:'Barra'},{n:'Red Orange',p:18,d:'Barra'},
-  {n:'Iced Coffee',p:16,d:'Barra'},{n:'Iced Caramell',p:16,d:'Barra'},
-  {n:'Iced Chocolate',p:16,d:'Barra'},{n:'Expreso',p:10,d:'Barra'},
-  {n:'Carne Asada',p:40,d:'Cocina'},{n:'Quesadilla Jamón',p:30,d:'Cocina'},
-  {n:'Quesadilla Carne Asada',p:35,d:'Cocina'},{n:'Quesadilla Adobado',p:35,d:'Cocina'},
-  {n:'Quesoburguesa',p:35,d:'Cocina'},{n:'Hamburguesa',p:30,d:'Cocina'},
-  {n:'Chili Dog',p:35,d:'Cocina'},{n:'Hot Dog',p:30,d:'Cocina'},
-  {n:'Taco Pastor',p:35,d:'Cocina'},{n:'Taco Longaniza',p:35,d:'Cocina'},
-  {n:'Taco Adobado',p:35,d:'Cocina'},{n:'Papa Supreme',p:20,d:'Cocina'},
-  {n:'Papa Chili Beans',p:25,d:'Cocina'},{n:'Nachos Supreme',p:20,d:'Cocina'},
-  {n:'Nachos Chili Beans',p:25,d:'Cocina'}
-];
+var PRODS = []; // Se cargan desde Firebase
 
 var S = {
   mesero:null, mesa:null,
@@ -314,7 +291,21 @@ var S = {
 };
 
 // ── INIT
-window.addEventListener('load', function(){ buildMesas(); escucharMesas(); });
+window.addEventListener('load', function(){
+  buildMesas();
+  escucharMesas();
+  cargarProductos();
+});
+
+function cargarProductos(){
+  db.ref('productos').once('value', function(snap){
+    var data = snap.val() || {};
+    PRODS = Object.values(data)
+      .filter(function(p){ return p.activo !== false; })
+      .map(function(p){ return {n:p.nombre, p:Number(p.precio), d:p.destino}; })
+      .sort(function(a,b){ return a.n.localeCompare(b.n); });
+  });
+}
 
 // ── PIN
 var buf='';
