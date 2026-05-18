@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Subir Productos a Firebase</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#eee;padding:30px;text-align:center}
+button{background:#f5a623;color:#000;border:none;padding:16px 32px;font-size:1.1rem;font-weight:800;border-radius:10px;cursor:pointer;margin-top:20px}
+#status{margin-top:20px;font-size:1rem;color:#22c55e}
+#error{color:#ef4444;margin-top:10px}
+</style>
+</head>
+<body>
+<h2>Subir Productos a Firebase</h2>
+<p style="color:#888;margin-top:10px">Esto sube todos los productos al Firebase una sola vez.<br>Solo necesitas hacerlo una vez.</p>
+<button onclick="subir()">Subir productos ahora</button>
+<div id="status"></div>
+<div id="error"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyDPjFVieeQHxrz97udHcCx1QR8w_vMPYS0",
+  databaseURL:"https://pos-restaurante-383b0-default-rtdb.firebaseio.com",
+  projectId:"pos-restaurante-383b0"
+});
+var db = firebase.database();
+
+var PRODUCTOS = {
+  "Gallo_12_Onzas":      {nombre:"Gallo 12 Onzas",      precio:12,  destino:"Barra",  activo:true},
+  "Gallo_LATA":          {nombre:"Gallo LATA",           precio:12,  destino:"Barra",  activo:true},
+  "Heineken":            {nombre:"Heineken",             precio:20,  destino:"Barra",  activo:true},
+  "Americano":           {nombre:"Americano",            precio:10,  destino:"Barra",  activo:true},
+  "Capuccino":           {nombre:"Capuccino",            precio:12,  destino:"Barra",  activo:true},
+  "Moka":                {nombre:"Moka",                 precio:12,  destino:"Barra",  activo:true},
+  "Caramel_Machiato":    {nombre:"Caramel Machiato",     precio:12,  destino:"Barra",  activo:true},
+  "Cafe_con_leche":      {nombre:"Cafe con leche",       precio:12,  destino:"Barra",  activo:true},
+  "Cabro_12_Onz":        {nombre:"Cabro 12 Onz",         precio:12,  destino:"Barra",  activo:true},
+  "Montecarlo":          {nombre:"Montecarlo",           precio:18,  destino:"Barra",  activo:true},
+  "Dorada_Draft":        {nombre:"Dorada Draft",         precio:18,  destino:"Barra",  activo:true},
+  "Agua_Pura":           {nombre:"Agua Pura",            precio:8,   destino:"Barra",  activo:true},
+  "Naranjada_con_soda":  {nombre:"Naranjada con soda",   precio:10,  destino:"Barra",  activo:true},
+  "Limonada_con_soda":   {nombre:"Limonada con soda",    precio:10,  destino:"Barra",  activo:true},
+  "Bacardi_Frambuesa":   {nombre:"Bacardi Frambuesa",    precio:18,  destino:"Barra",  activo:true},
+  "Orange":              {nombre:"Orange",               precio:10,  destino:"Barra",  activo:true},
+  "Tikis":               {nombre:"Tikis",                precio:10,  destino:"Barra",  activo:true},
+  "Mineral_Lata":        {nombre:"Mineral Lata",         precio:10,  destino:"Barra",  activo:true},
+  "Jarritos":            {nombre:"Jarritos",             precio:16,  destino:"Barra",  activo:true},
+  "Te_frio":             {nombre:"Te frio",              precio:12,  destino:"Barra",  activo:true},
+  "Bebida_de_Mango":     {nombre:"Bebida de Mango",      precio:18,  destino:"Barra",  activo:true},
+  "Octavo_Quetzalteca":  {nombre:"Octavo Quetzalteca",   precio:15,  destino:"Barra",  activo:true},
+  "Blue_Lagoon":         {nombre:"Blue Lagoon",          precio:18,  destino:"Barra",  activo:true},
+  "Red_Orange":          {nombre:"Red Orange",           precio:18,  destino:"Barra",  activo:true},
+  "Iced_Coffee":         {nombre:"Iced Coffee",          precio:16,  destino:"Barra",  activo:true},
+  "Iced_Caramell":       {nombre:"Iced Caramell",        precio:16,  destino:"Barra",  activo:true},
+  "Iced_Chocolate":      {nombre:"Iced Chocolate",       precio:16,  destino:"Barra",  activo:true},
+  "Expreso":             {nombre:"Expreso",              precio:10,  destino:"Barra",  activo:true},
+  "Carne_Asada":         {nombre:"Carne Asada",          precio:40,  destino:"Cocina", activo:true},
+  "Quesadilla_Jamon":    {nombre:"Quesadilla Jamón",     precio:30,  destino:"Cocina", activo:true},
+  "Quesadilla_Carne_Asada":{nombre:"Quesadilla Carne Asada",precio:35,destino:"Cocina",activo:true},
+  "Quesadilla_Adobado":  {nombre:"Quesadilla Adobado",   precio:35,  destino:"Cocina", activo:true},
+  "Quesoburguesa":       {nombre:"Quesoburguesa",        precio:35,  destino:"Cocina", activo:true},
+  "Hamburguesa":         {nombre:"Hamburguesa",          precio:30,  destino:"Cocina", activo:true},
+  "Chili_Dog":           {nombre:"Chili Dog",            precio:35,  destino:"Cocina", activo:true},
+  "Hot_Dog":             {nombre:"Hot Dog",              precio:30,  destino:"Cocina", activo:true},
+  "Taco_Pastor":         {nombre:"Taco Pastor",          precio:35,  destino:"Cocina", activo:true},
+  "Taco_Longaniza":      {nombre:"Taco Longaniza",       precio:35,  destino:"Cocina", activo:true},
+  "Taco_Adobado":        {nombre:"Taco Adobado",         precio:35,  destino:"Cocina", activo:true},
+  "Papa_Supreme":        {nombre:"Papa Supreme",         precio:20,  destino:"Cocina", activo:true},
+  "Papa_Chili_Beans":    {nombre:"Papa Chili Beans",     precio:25,  destino:"Cocina", activo:true},
+  "Nachos_Supreme":      {nombre:"Nachos Supreme",       precio:20,  destino:"Cocina", activo:true},
+  "Nachos_Chili_Beans":  {nombre:"Nachos Chili Beans",   precio:25,  destino:"Cocina", activo:true},
+  "Hora_de_Billar":      {nombre:"Hora de Billar",       precio:35,  destino:"Ninguno",activo:true}
+};
+
+function subir(){
+  document.getElementById('status').textContent = 'Subiendo...';
+  document.getElementById('error').textContent = '';
+  db.ref('productos').set(PRODUCTOS, function(err){
+    if(err){
+      document.getElementById('error').textContent = 'Error: ' + err.message;
+    } else {
+      document.getElementById('status').textContent = '✓ ' + Object.keys(PRODUCTOS).length + ' productos subidos correctamente. Ya puedes cerrar esta página.';
+    }
+  });
+}
+</script>
+</body>
+</html>
