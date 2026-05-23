@@ -12,7 +12,6 @@ html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--txt);font-family:'Nunito',sans-serif;display:flex;flex-direction:column}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(16px);background:#222;color:#fff;padding:10px 22px;border-radius:999px;font-size:.85rem;opacity:0;transition:all .3s;z-index:8000;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-/* PIN */
 #pin-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:radial-gradient(ellipse at top,#1e2235,var(--bg) 70%)}
 .pin-logo{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--acc);text-align:center;letter-spacing:2px}
 .pin-sub{font-size:.85rem;color:var(--mut);text-align:center;margin-bottom:28px}
@@ -25,18 +24,14 @@ body{background:var(--bg);color:var(--txt);font-family:'Nunito',sans-serif;displ
 .pk:active{background:var(--acc);color:#000;transform:scale(.92)}
 .pk.del{background:transparent;color:var(--red)}
 .pk.ok{background:var(--acc);color:#000;font-weight:800}
-/* HEADER */
 header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--acc);letter-spacing:1px}
 .hdr-sub{font-size:.68rem;color:var(--mut)}
 .hdr-right{display:flex;align-items:center;gap:10px}
 .hdr-time{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--mut);letter-spacing:1px}
 .btn-logout{background:var(--sur2);border:1px solid var(--bdr);border-radius:var(--rs);padding:6px 14px;font-size:.78rem;font-weight:700;color:var(--mut);cursor:pointer;font-family:'Nunito',sans-serif}
-.btn-logout:hover{border-color:var(--red);color:var(--red)}
-/* SCREENS */
 .scr{display:none;flex:1;overflow-y:auto}
 .scr.on{display:flex;flex-direction:column}
-/* MESAS */
 #s-mesas{padding:16px}
 .stit{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:1px;margin-bottom:4px}
 .ssub{color:var(--mut);font-size:.8rem;margin-bottom:16px}
@@ -54,7 +49,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
 .mcard .ms{font-size:.65rem;color:var(--mut);margin-top:2px;font-weight:600}
 .mcard.bil{background:linear-gradient(135deg,#1e1530,var(--sur))}
 .mcard.bil .mn{color:#a855f7;font-size:1.1rem}
-/* DETALLE */
 #s-detalle{padding:0}
 .det-hdr{background:var(--sur);border-bottom:1px solid var(--bdr);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .det-mesa{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--acc);letter-spacing:1px}
@@ -81,7 +75,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
 .res-val.grn{color:var(--grn)}.res-val.blue{color:var(--blue)}.res-val.red{color:var(--red)}.res-val.acc{color:var(--acc)}
 .btn-cobrar{width:100%;background:var(--grn);color:#000;border:none;border-radius:var(--rs);padding:15px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer}
 .btn-cobrar:disabled{opacity:.4;cursor:default}
-/* MODAL */
 .mov{position:fixed;inset:0;background:#000c;z-index:500;display:none;align-items:flex-end;justify-content:center}
 .mov.on{display:flex}
 .mdl{background:var(--sur);border-radius:var(--r) var(--r) 0 0;padding:22px 18px;width:100%;max-width:480px;animation:sup .3s ease}
@@ -98,8 +91,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
 </head>
 <body>
 <div id="toast"></div>
-
-<!-- PIN -->
 <div id="pin-screen">
   <div class="pin-logo">Donde los Grillos</div>
   <div class="pin-sub">Panel del Cajero — Acceso restringido</div>
@@ -112,7 +103,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
     <div class="pk del" onclick="pkDel()">⌫</div><div class="pk" onclick="pk('0')">0</div><div class="pk ok" onclick="pkOk()">✓</div>
   </div>
 </div>
-
 <header>
   <div>
     <div class="hdr-logo">💰 Cajero — Donde los Grillos</div>
@@ -123,7 +113,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
     <div class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</div>
   </div>
 </header>
-
 <div class="scr on" id="s-mesas">
   <div style="padding:16px">
     <div class="stit">Control de Mesas</div>
@@ -132,7 +121,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
     <div class="msec"><div class="slbl">🎱 Billar</div><div class="mgrid" id="bgrid"></div></div>
   </div>
 </div>
-
 <div class="scr" id="s-detalle">
   <div class="det-hdr">
     <div>
@@ -150,7 +138,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
     <button class="btn-cobrar" id="btnCobrar" onclick="mostrarConfirm()">Cobrar mesa</button>
   </div>
 </div>
-
 <div class="mov" id="mConfirm">
   <div class="mdl">
     <h3>Confirmar cobro</h3>
@@ -162,7 +149,6 @@ header{background:var(--sur);border-bottom:2px solid var(--acc);padding:13px 20p
     </div>
   </div>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
@@ -173,7 +159,7 @@ firebase.initializeApp({
   projectId:"pos-restaurante-383b0"
 });
 var db = firebase.database();
-
+var COMISION = 0.0483;
 var PIN_CORRECTO = '2511';
 var pinBuf = '';
 function pk(d){ if(pinBuf.length>=4)return; pinBuf+=d; updPin(); }
@@ -181,40 +167,27 @@ function pkDel(){ pinBuf=pinBuf.slice(0,-1); updPin(); document.getElementById('
 function updPin(){ document.getElementById('pin-disp').textContent=pinBuf?pinBuf.replace(/./g,'●'):'_'; }
 function pkOk(){
   if(!pinBuf)return;
-  if(pinBuf===PIN_CORRECTO){
-    document.getElementById('pin-screen').style.display='none';
-  } else {
+  if(pinBuf===PIN_CORRECTO){ document.getElementById('pin-screen').style.display='none'; }
+  else {
     document.getElementById('pin-disp').classList.add('err');
     document.getElementById('pin-hint').textContent='PIN incorrecto';
     pinBuf='';
     setTimeout(function(){ updPin(); document.getElementById('pin-disp').classList.remove('err'); document.getElementById('pin-hint').textContent='Ingresa el PIN de acceso'; },1000);
   }
 }
-function cerrarSesion(){
-  document.getElementById('pin-screen').style.display='flex';
-  pinBuf=''; updPin();
-  ir('s-mesas');
-}
-
+function cerrarSesion(){ document.getElementById('pin-screen').style.display='flex'; pinBuf=''; updPin(); ir('s-mesas'); }
 var TODAS_MESAS = [];
 for(var i=1;i<=13;i++) TODAS_MESAS.push('Mesa '+i);
 TODAS_MESAS.push('Billar A'); TODAS_MESAS.push('Billar B');
-
 var S = { mesa:null, items:[], pagos:{} };
-
 function pad(n){ return n<10?'0'+n:''+n; }
-setInterval(function(){
-  var n=new Date();
-  document.getElementById('reloj').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
-},1000);
-
+setInterval(function(){ var n=new Date(); document.getElementById('reloj').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds()); },1000);
 function buildGrids(){
   var g=document.getElementById('mgrid');
   for(var i=1;i<=13;i++) g.appendChild(mkCard('Mesa '+i,i,false));
   var bg=document.getElementById('bgrid');
   ['Billar A','Billar B'].forEach(function(m){ bg.appendChild(mkCard(m,m,true)); });
 }
-
 function mkCard(id,lbl,isBil){
   var d=document.createElement('div');
   d.className='mcard libre'+(isBil?' bil':'');
@@ -223,7 +196,6 @@ function mkCard(id,lbl,isBil){
   d.onclick=function(){ if(d.classList.contains('ocupada')) selMesa(id); };
   return d;
 }
-
 db.ref('mesas').on('value',function(snap){
   TODAS_MESAS.forEach(function(m){
     var card=document.getElementById('mc-'+m); if(!card)return;
@@ -244,14 +216,12 @@ db.ref('mesas').on('value',function(snap){
     }
   });
 });
-
 function selMesa(mesa){
   S.mesa=mesa; S.pagos={};
   document.getElementById('detMesa').textContent=mesa;
   cargarDetalle(mesa);
   ir('s-detalle');
 }
-
 function cargarDetalle(mesa){
   db.ref('comandas').orderByChild('mesa').equalTo(mesa).once('value',function(snap){
     var items=[];
@@ -260,11 +230,10 @@ function cargarDetalle(mesa){
       if(d.estado!=='Cobrado'&&d.estado!=='Anulado') items.push({id:c.key,producto:d.producto,cantidad:d.cantidad,precio:d.precio||0,subtotal:d.subtotal||0,comentario:d.comentario||'',mesero:d.mesero||'',estado:d.estado});
     });
     S.items=items;
-    items.forEach(function(i){ if(!S.pagos[i.id]) S.pagos[i.id]='Efectivo'; });
+    items.forEach(function(i){ if(!S.pagos[i.id]) S.pagos[i.id]={tipo:'Efectivo',cantEf:Number(i.cantidad),cantTar:0}; });
     renderDetalle();
   });
 }
-
 function renderDetalle(){
   var items=S.items.filter(function(i){return i.estado!=='Anulado';});
   var list=document.getElementById('detItemsList'); list.innerHTML='';
@@ -276,13 +245,10 @@ function renderDetalle(){
     renderResumen(); return;
   }
   items.forEach(function(item){
-    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:item.cantidad,cantTar:0};
-    if(typeof pago==='string') pago={tipo:pago,cantEf:item.cantidad,cantTar:0};
+    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:Number(item.cantidad),cantTar:0};
+    if(typeof pago==='string') pago={tipo:pago,cantEf:Number(item.cantidad),cantTar:0};
     S.pagos[item.id]=pago;
-
     var div=document.createElement('div'); div.className='pitem';
-
-    // Top row
     var top=document.createElement('div'); top.className='pitem-top';
     var info=document.createElement('div'); info.className='pitem-info';
     info.innerHTML='<div class="pitem-name">'+item.producto+'</div>'+
@@ -291,35 +257,23 @@ function renderDetalle(){
     var sub=document.createElement('div'); sub.className='pitem-sub';
     sub.textContent='Q'+Number(item.subtotal).toFixed(2);
     top.appendChild(info); top.appendChild(sub); div.appendChild(top);
-
-    // Si cantidad > 1, mostrar opcion de dividir
     var qty=Number(item.cantidad)||1;
     if(qty>1){
-      // Split mode
       var splitDiv=document.createElement('div');
       splitDiv.style.cssText='margin-top:10px;background:var(--sur2);border-radius:var(--rs);padding:10px 12px';
       splitDiv.innerHTML='<div style="font-size:.72rem;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Dividir pago ('+qty+' unidades)</div>';
-
-      var row=document.createElement('div');
-      row.style.cssText='display:flex;gap:10px;align-items:center';
-
-      // Efectivo input
+      var row=document.createElement('div'); row.style.cssText='display:flex;gap:10px;align-items:center';
       var efWrap=document.createElement('div'); efWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
       var efLbl=document.createElement('div'); efLbl.style.cssText='font-size:.7rem;color:var(--grn);font-weight:700'; efLbl.textContent='💵 Efectivo';
       var efInp=document.createElement('input'); efInp.type='number'; efInp.min='0'; efInp.max=qty; efInp.step='1'; efInp.value=pago.cantEf;
       efInp.style.cssText='background:var(--sur);border:1.5px solid var(--grn);border-radius:var(--rs);padding:7px;color:var(--txt);font-family:"Nunito",sans-serif;font-size:.9rem;font-weight:700;width:100%;outline:none;text-align:center';
       efWrap.appendChild(efLbl); efWrap.appendChild(efInp);
-
       var sep=document.createElement('div'); sep.textContent='+'; sep.style.cssText='color:var(--mut);font-weight:700;padding-top:18px';
-
-      // Tarjeta input
       var tarWrap=document.createElement('div'); tarWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
       var tarLbl=document.createElement('div'); tarLbl.style.cssText='font-size:.7rem;color:var(--blue);font-weight:700'; tarLbl.textContent='💳 Tarjeta';
       var tarInp=document.createElement('input'); tarInp.type='number'; tarInp.min='0'; tarInp.max=qty; tarInp.step='1'; tarInp.value=pago.cantTar;
       tarInp.style.cssText='background:var(--sur);border:1.5px solid var(--blue);border-radius:var(--rs);padding:7px;color:var(--txt);font-family:"Nunito",sans-serif;font-size:.9rem;font-weight:700;width:100%;outline:none;text-align:center';
       tarWrap.appendChild(tarLbl); tarWrap.appendChild(tarInp);
-
-      // Total indicator
       var totWrap=document.createElement('div'); totWrap.style.cssText='flex:1;display:flex;flex-direction:column;gap:4px';
       var totLbl=document.createElement('div'); totLbl.style.cssText='font-size:.7rem;color:var(--mut);font-weight:700'; totLbl.textContent='= Total';
       var totDisp=document.createElement('div');
@@ -334,12 +288,9 @@ function renderDetalle(){
       efInp.oninput=updateTot; tarInp.oninput=updateTot;
       updateTot();
       totWrap.appendChild(totLbl); totWrap.appendChild(totDisp);
-
       row.appendChild(efWrap); row.appendChild(sep); row.appendChild(tarWrap); row.appendChild(totWrap);
-      splitDiv.appendChild(row);
-      div.appendChild(splitDiv);
+      splitDiv.appendChild(row); div.appendChild(splitDiv);
     } else {
-      // Single unit - simple efectivo/tarjeta buttons
       var actions=document.createElement('div'); actions.className='pitem-actions';
       var mpago=document.createElement('div'); mpago.className='mpago';
       var bEf=document.createElement('div'); bEf.className='mp-btn efectivo'+(pago.tipo==='Efectivo'?' sel':''); bEf.textContent='💵 Efectivo';
@@ -349,24 +300,18 @@ function renderDetalle(){
       mpago.appendChild(bEf); mpago.appendChild(bTar); actions.appendChild(mpago);
       div.appendChild(actions);
     }
-
-    // Boton anular
     var anulRow=document.createElement('div'); anulRow.style.cssText='display:flex;justify-content:flex-end;margin-top:8px';
     var bAn=document.createElement('button'); bAn.className='btn-anular'; bAn.textContent='Anular';
     bAn.onclick=(function(id){return function(){anularItem(id);};})(item.id);
     anulRow.appendChild(bAn); div.appendChild(anulRow);
     list.appendChild(div);
   });
-
   var total=items.reduce(function(s,i){return s+Number(i.subtotal);},0);
   document.getElementById('detTotal').textContent='Q'+total.toFixed(2);
   document.getElementById('detItems').textContent=items.length+' producto(s)';
   document.getElementById('btnCobrar').disabled=false;
   renderResumen();
 }
-
-function setMetodo(id,m){ S.pagos[id]={tipo:m,cantEf:m==='Efectivo'?1:0,cantTar:m==='Tarjeta'?1:0}; renderDetalle(); }
-
 function anularItem(id){
   if(!confirm('¿Anular este producto?'))return;
   db.ref('comandas/'+id+'/estado').set('Anulado',function(err){
@@ -378,41 +323,33 @@ function anularItem(id){
     }
   });
 }
-
-function renderResumen(){
+function calcTotales(){
   var items=S.items.filter(function(i){return i.estado!=='Anulado';});
   var ef=0,tar=0;
   items.forEach(function(i){
-    var pago=S.pagos[i.id]||{tipo:'Efectivo',cantEf:i.cantidad,cantTar:0};
-    if(typeof pago==='string') pago={tipo:pago,cantEf:Number(i.cantidad),cantTar:0};
-    var precio=Number(i.precio)||0;
-    ef+=pago.cantEf*precio;
-    tar+=pago.cantTar*precio;
-  });
-  var com=tar*0.0483; var tot=ef+tar;
-  var res=document.getElementById('resumen'); res.innerHTML='';
-  function mkR(lbl,val,cls){var d=document.createElement('div');d.className='res-item';d.innerHTML='<div class="res-lbl">'+lbl+'</div><div class="res-val '+cls+'">Q'+val.toFixed(2)+'</div>';res.appendChild(d);}
-  mkR('Efectivo',ef,'grn'); mkR('Tarjeta',tar,'blue'); mkR('Comisión 5%',com,'red'); mkR('Total',tot,'acc');
-}
-
-function mostrarConfirm(){
-  var items=S.items.filter(function(i){return i.estado!=='Anulado';});
-  if(!items.length)return;
-  var ef=0,tar=0;
-  items.forEach(function(i){
-    var pago=S.pagos[i.id]||{tipo:'Efectivo',cantEf:i.cantidad,cantTar:0};
+    var pago=S.pagos[i.id]||{tipo:'Efectivo',cantEf:Number(i.cantidad),cantTar:0};
     if(typeof pago==='string') pago={tipo:pago,cantEf:Number(i.cantidad),cantTar:0};
     var precio=Number(i.precio)||0;
     ef+=pago.cantEf*precio; tar+=pago.cantTar*precio;
   });
-  var com=tar*0.05; var tot=ef+tar;
+  return{ef:ef,tar:tar,com:tar*COMISION,tot:ef+tar};
+}
+function renderResumen(){
+  var t=calcTotales();
+  var res=document.getElementById('resumen'); res.innerHTML='';
+  function mkR(lbl,val,cls){var d=document.createElement('div');d.className='res-item';d.innerHTML='<div class="res-lbl">'+lbl+'</div><div class="res-val '+cls+'">Q'+val.toFixed(2)+'</div>';res.appendChild(d);}
+  mkR('Efectivo',t.ef,'grn'); mkR('Tarjeta',t.tar,'blue'); mkR('Comisión 4.83%',t.com,'red'); mkR('Total',t.tot,'acc');
+}
+function mostrarConfirm(){
+  var items=S.items.filter(function(i){return i.estado!=='Anulado';});
+  if(!items.length)return;
+  var t=calcTotales();
   document.getElementById('mConfirmSub').textContent=S.mesa+' · '+items.length+' producto(s)';
   var det=document.getElementById('mConfirmDetalle'); det.innerHTML='';
   function mkRow(lbl,val,bold){var d=document.createElement('div');d.className='mdl-row'+(bold?' total':'');d.innerHTML='<span>'+lbl+'</span><span>Q'+val.toFixed(2)+'</span>';det.appendChild(d);}
-  mkRow('💵 Efectivo',ef,false); mkRow('💳 Tarjeta',tar,false); mkRow('Comisión (5%)',com,false); mkRow('TOTAL',tot,true);
+  mkRow('💵 Efectivo',t.ef,false); mkRow('💳 Tarjeta',t.tar,false); mkRow('Comisión (4.83%)',t.com,false); mkRow('TOTAL',t.tot,true);
   document.getElementById('mConfirm').classList.add('on');
 }
-
 function cobrarMesa(){
   document.getElementById('mConfirm').classList.remove('on');
   var items=S.items.filter(function(i){return i.estado!=='Anulado';});
@@ -421,14 +358,12 @@ function cobrarMesa(){
   var hora=pad(now.getHours())+':'+pad(now.getMinutes());
   var mk=S.mesa.replace(/\s/g,'_');
   var updates={};
-  updates['comandas/'+items[0].id+'/estado'];
   items.forEach(function(item){
-    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:item.cantidad,cantTar:0};
+    var pago=S.pagos[item.id]||{tipo:'Efectivo',cantEf:Number(item.cantidad),cantTar:0};
     if(typeof pago==='string') pago={tipo:pago,cantEf:Number(item.cantidad),cantTar:0};
     updates['comandas/'+item.id+'/estado']='Cobrado';
     updates['comandas/'+item.id+'/metodoPago']=pago.tipo;
     var precio=Number(item.precio)||0;
-    // Si es mixto, crear dos registros en historial
     if(pago.cantEf>0){
       var hid=db.ref('historial_caja').push().key;
       updates['historial_caja/'+hid]={id:hid,fecha:fecha,hora:hora,timestamp:now.getTime(),mesa:S.mesa,producto:item.producto,cantidad:pago.cantEf,precio:precio,subtotal:pago.cantEf*precio,metodoPago:'Efectivo',comentario:item.comentario||'',mesero:item.mesero||''};
@@ -444,10 +379,8 @@ function cobrarMesa(){
     else { toast('Mesa cobrada y liberada'); S.mesa=null; S.items=[]; S.pagos={}; ir('s-mesas'); }
   });
 }
-
 function ir(id){ document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');}); document.getElementById(id).classList.add('on'); window.scrollTo(0,0); }
 function toast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2800); }
-
 buildGrids();
 </script>
 </body>
