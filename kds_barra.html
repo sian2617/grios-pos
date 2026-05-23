@@ -3,18 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Donde los Grios — Barra</title>
+<title>Donde los Grillos — Barra</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0d13;--surface:#111520;--surface2:#181d2a;--border:#1e2535;--accent:#3b82f6;--danger:#ef4444;--warn:#f5a623;--text:#eef0f5;--muted:#4a5a7a;--r:14px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh}
+/* PIN */
+#pin-screen{position:fixed;inset:0;background:#0a0d13;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:radial-gradient(ellipse at top,#0d1020,#0a0f0a 70%)}
+.pin-logo{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#3b82f6;text-align:center;letter-spacing:2px}
+.pin-sub{font-size:.85rem;color:#4a5a7a;text-align:center;margin-bottom:28px}
+.pin-disp{background:#111520;border:2px solid #1e2535;border-radius:14px;padding:14px 24px;width:100%;max-width:280px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:10px;color:#eef5ee;margin-bottom:8px;min-height:64px;transition:border-color .2s}
+.pin-disp.err{border-color:#ef4444;animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pin-hint{color:#4a5a7a;font-size:.75rem;margin-bottom:22px;text-align:center;min-height:18px}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px}
+.pk{background:#181d2a;border:1px solid #1f2e1f;border-radius:9px;padding:15px;font-size:1.4rem;font-weight:700;cursor:pointer;color:#eef5ee;text-align:center;user-select:none;transition:all .12s}
+.pk:active{background:#22c55e;color:#000;transform:scale(.92)}
+.pk.del{background:transparent;color:#ef4444}
+.pk.ok{background:#22c55e;color:#000;font-weight:800}
+/* HEADER */
 header{background:var(--surface);border-bottom:3px solid var(--accent);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px #3b82f622}
 .hdr-left{display:flex;align-items:center;gap:14px}
 .hdr-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--accent);letter-spacing:3px}
 .hdr-sub{font-size:.75rem;color:var(--muted);font-weight:600;margin-top:-2px}
 .badge{background:var(--accent);color:#000;font-weight:800;font-size:.85rem;padding:5px 16px;border-radius:999px}
 .hdr-time{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--muted);letter-spacing:1px}
+.btn-logout{background:#181d2a;border:1px solid #1f2e1f;border-radius:9px;padding:6px 14px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif}
+/* KDS */
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:12px}
 .empty-ico{font-size:5rem;opacity:.2}
 .empty-txt{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;color:var(--accent);opacity:.3}
@@ -29,7 +45,7 @@ header{background:var(--surface);border-bottom:3px solid var(--accent);padding:1
 .card-right{display:flex;align-items:center;gap:8px}
 .card-hora{font-size:.75rem;color:var(--muted);font-weight:700}
 .card-age{font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:999px}
-.age-ok{background:#22c55e22;color:var(--accent)}
+.age-ok{background:#3b82f622;color:var(--accent)}
 .age-warn{background:#f5a62322;color:var(--warn)}
 .age-hot{background:#ef444422;color:var(--danger)}
 .card-items{padding:10px 16px}
@@ -42,22 +58,41 @@ header{background:var(--surface);border-bottom:3px solid var(--accent);padding:1
 .card-footer{padding:10px 16px 14px}
 .btn-listo{width:100%;background:var(--accent);color:#000;border:none;border-radius:10px;padding:14px;font-family:'Nunito',sans-serif;font-weight:900;font-size:1rem;cursor:pointer;letter-spacing:.3px}
 .btn-listo:disabled{opacity:.5;cursor:default}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2a1a;border:1px solid var(--accent);color:var(--accent);padding:10px 24px;border-radius:999px;font-size:.85rem;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:#0d1525;border:1px solid var(--accent);color:var(--accent);padding:10px 24px;border-radius:999px;font-size:.85rem;font-weight:700;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
+
+<!-- PIN -->
+<div id="pin-screen">
+  <div class="pin-logo">Donde los Grillos</div>
+  <div class="pin-sub">Panel de Barra — Acceso restringido</div>
+  <div class="pin-disp" id="pin-disp">_</div>
+  <div class="pin-hint" id="pin-hint">Ingresa el PIN de acceso</div>
+  <div class="pin-grid">
+    <div class="pk" onclick="pk('1')">1</div><div class="pk" onclick="pk('2')">2</div><div class="pk" onclick="pk('3')">3</div>
+    <div class="pk" onclick="pk('4')">4</div><div class="pk" onclick="pk('5')">5</div><div class="pk" onclick="pk('6')">6</div>
+    <div class="pk" onclick="pk('7')">7</div><div class="pk" onclick="pk('8')">8</div><div class="pk" onclick="pk('9')">9</div>
+    <div class="pk del" onclick="pkDel()">⌫</div><div class="pk" onclick="pk('0')">0</div><div class="pk ok" onclick="pkOk()">✓</div>
+  </div>
+</div>
+
 <header>
   <div class="hdr-left">
     <div>
       <div class="hdr-title">BARRA</div>
-      <div class="hdr-sub">Donde los Grios</div>
+      <div class="hdr-sub">Donde los Grillos</div>
     </div>
     <div class="badge" id="badge">0 pedidos</div>
   </div>
-  <div class="hdr-time" id="reloj"></div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="hdr-time" id="reloj"></div>
+    <div class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</div>
+  </div>
 </header>
+
 <div id="cont"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -69,10 +104,30 @@ firebase.initializeApp({
   projectId: "pos-restaurante-383b0"
 });
 var db = firebase.database();
-var DESTINO = 'Barra';
+var DESTINO = "Barra";
+var PIN_CORRECTO = '2511';
+var pinBuf = '';
+
+function pk(d){ if(pinBuf.length>=4)return; pinBuf+=d; updPin(); }
+function pkDel(){ pinBuf=pinBuf.slice(0,-1); updPin(); document.getElementById('pin-hint').textContent='Ingresa el PIN de acceso'; document.getElementById('pin-disp').classList.remove('err'); }
+function updPin(){ document.getElementById('pin-disp').textContent=pinBuf?pinBuf.replace(/./g,'●'):'_'; }
+function pkOk(){
+  if(!pinBuf)return;
+  if(pinBuf===PIN_CORRECTO){
+    document.getElementById('pin-screen').style.display='none';
+  } else {
+    document.getElementById('pin-disp').classList.add('err');
+    document.getElementById('pin-hint').textContent='PIN incorrecto';
+    pinBuf='';
+    setTimeout(function(){ updPin(); document.getElementById('pin-disp').classList.remove('err'); document.getElementById('pin-hint').textContent='Ingresa el PIN de acceso'; },1000);
+  }
+}
+function cerrarSesion(){
+  document.getElementById('pin-screen').style.display='flex';
+  pinBuf=''; updPin();
+}
 
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
 setInterval(function() {
   var n = new Date();
   document.getElementById('reloj').textContent = pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
@@ -96,16 +151,13 @@ function render(mesas) {
   var cont = document.getElementById('cont');
   var badge = document.getElementById('badge');
   badge.textContent = mesas.length + (mesas.length === 1 ? ' pedido' : ' pedidos');
-
   if (!mesas.length) {
     cont.innerHTML = '<div class="empty"><div class="empty-ico">✓</div><div class="empty-txt">Todo listo</div><div class="empty-sub">No hay pedidos pendientes</div></div>';
     return;
   }
-
   mesas.sort(function(a, b) { return a.hora - b.hora; });
   var grid = document.createElement('div');
   grid.className = 'grid';
-
   mesas.forEach(function(m) {
     var mins = Math.floor((Date.now() - m.hora) / 60000);
     var ageClass = mins >= 15 ? 'age-hot' : mins >= 8 ? 'age-warn' : 'age-ok';
@@ -113,19 +165,13 @@ function render(mesas) {
     var urgent = mins >= 15;
     var hora = new Date(m.hora);
     var horaTxt = pad(hora.getHours()) + ':' + pad(hora.getMinutes());
-
     var card = document.createElement('div');
     card.className = 'kcard' + (urgent ? ' urgent' : '');
-
     var hdr = document.createElement('div');
     hdr.className = 'card-hdr';
     hdr.innerHTML = '<div class="card-mesa' + (urgent ? ' urgent' : '') + '">' + m.mesa + '</div>' +
-      '<div class="card-right">' +
-      '<div class="card-hora">' + horaTxt + '</div>' +
-      '<div class="card-age ' + ageClass + '">' + ageTxt + '</div>' +
-      '</div>';
+      '<div class="card-right"><div class="card-hora">' + horaTxt + '</div><div class="card-age ' + ageClass + '">' + ageTxt + '</div></div>';
     card.appendChild(hdr);
-
     var itemsDiv = document.createElement('div');
     itemsDiv.className = 'card-items';
     m.items.forEach(function(i) {
@@ -142,7 +188,7 @@ function render(mesas) {
       if (i.comentario) {
         var note = document.createElement('div');
         note.className = 'cnote';
-        note.textContent = 'Sin: ' + i.comentario;
+        note.textContent = '📝 ' + i.comentario;
         info.appendChild(note);
       }
       row.appendChild(qty);
@@ -150,7 +196,6 @@ function render(mesas) {
       itemsDiv.appendChild(row);
     });
     card.appendChild(itemsDiv);
-
     var footer = document.createElement('div');
     footer.className = 'card-footer';
     var btn = document.createElement('button');
@@ -161,9 +206,7 @@ function render(mesas) {
       btn.disabled = true;
       btn.textContent = 'Guardando...';
       var updates = {};
-      savedIds.forEach(function(id) {
-        updates['comandas/' + id + '/estado'] = 'Listo';
-      });
+      savedIds.forEach(function(id) { updates['comandas/' + id + '/estado'] = 'Listo'; });
       db.ref().update(updates, function(error) {
         if (error) {
           btn.disabled = false;
@@ -173,9 +216,7 @@ function render(mesas) {
           card.style.opacity = '0';
           card.style.transform = 'scale(0.9)';
           card.style.transition = 'all 0.3s';
-          setTimeout(function() {
-            if (card.parentNode) card.parentNode.removeChild(card);
-          }, 300);
+          setTimeout(function() { if (card.parentNode) card.parentNode.removeChild(card); }, 300);
           toast('Pedido entregado');
         }
       });
@@ -184,7 +225,6 @@ function render(mesas) {
     card.appendChild(footer);
     grid.appendChild(card);
   });
-
   cont.innerHTML = '';
   cont.appendChild(grid);
 }
