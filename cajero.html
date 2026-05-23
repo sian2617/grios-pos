@@ -389,7 +389,7 @@ function renderResumen(){
     ef+=pago.cantEf*precio;
     tar+=pago.cantTar*precio;
   });
-  var com=tar*0.05; var tot=ef+tar;
+  var com=tar*0.0483; var tot=ef+tar;
   var res=document.getElementById('resumen'); res.innerHTML='';
   function mkR(lbl,val,cls){var d=document.createElement('div');d.className='res-item';d.innerHTML='<div class="res-lbl">'+lbl+'</div><div class="res-val '+cls+'">Q'+val.toFixed(2)+'</div>';res.appendChild(d);}
   mkR('Efectivo',ef,'grn'); mkR('Tarjeta',tar,'blue'); mkR('Comisión 5%',com,'red'); mkR('Total',tot,'acc');
